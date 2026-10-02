@@ -1,0 +1,31 @@
+{
+ "events": [
+  {
+   "id": "6405993778112",
+   "season": "20262027",
+   "game_id": 2026020006,
+   "date": "2026-09-30",
+   "opp": "PHI",
+   "home": false,
+   "type": "助攻",
+   "moment": "第3节 16:37",
+   "scorer": "E. Chinakhov",
+   "assists": [
+    "E. Karlsson",
+    "R. Rakell"
+   ],
+   "strength": "多打少",
+   "modifier": "",
+   "score": "PIT 7–0 PHI",
+   "clip": 6405993778112,
+   "share": "https://nhl.com/video/pit-phi-chinakhov-scores-ppg-against-dan-vladar-6405993778112",
+   "playoff": false
+  }
+ ],
+ "seasons": {
+  "20262027": {
+   "games": 1,
+   "updated": "2026-10-02T20:20:53"
+  }
+ }
+}

@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>片段存档</title>
+<style>
+:root{
+  --bg:#f5f4f0; --card:#fff; --ink:#1f2328; --muted:#6b7280; --line:#e3e0d8;
+  --accent:#1f5f8b; --accent-ink:#fff; --bad:#b4453a;
+  --goal:#c2410c; --assist:#1f5f8b; --interview:#6d4c9f; --event:#2f7d4f; --other:#6b7280;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#141618; --card:#1e2124; --ink:#e8e6e1; --muted:#9aa0a6; --line:#33373b;
+    --accent:#6cb2e0; --accent-ink:#0c1a24; --bad:#e07a6e;
+    --goal:#f08a52; --assist:#6cb2e0; --interview:#b69bdf; --event:#6fcf97; --other:#9aa0a6;}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:22px 16px 80px}
+header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+h1{font-size:22px;margin:0}
+.sub{color:var(--muted);font-size:13px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:14px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--bg);
+  color:var(--ink);font:inherit}
+textarea{width:100%;min-height:54px;resize:vertical}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:14px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13px}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:12px 0}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tile b{display:block;font-size:28px;line-height:1.1}
+.tile span{font-size:13px;color:var(--muted)}
+.tile.g b{color:var(--goal)} .tile.a b{color:var(--assist)} .tile.i b{color:var(--interview)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
+th{color:var(--muted);font-weight:500;font-size:12px}
+tr.click{cursor:pointer} tr.click:hover{background:var(--bg)}
+td.n,th.n{text-align:right}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.clip{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer}
+.clip:hover{outline:2px solid var(--accent)}
+.thumb{aspect-ratio:16/9;background:var(--line) center/cover no-repeat;position:relative}
+.dur{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.7);color:#fff;font-size:11px;padding:1px 6px;border-radius:4px}
+.cbody{padding:8px 10px}
+.cbody .t{font-size:14px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meta{font-size:12px;color:var(--muted);margin-top:3px}
+.badge{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;color:#fff;margin-right:4px}
+.badge.进球{background:var(--goal)} .badge.助攻{background:var(--assist)} .badge.采访{background:var(--interview)} .badge.活动{background:var(--event)} .badge.其他{background:var(--other)}
+.hint{font-size:12px;color:var(--muted)}
+.job{font-size:13px;margin-top:4px} .job.err{color:var(--bad)}
+/* 弹窗 */
+.sum{font-size:12px;color:var(--muted);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sumbox{width:100%;min-height:130px;line-height:1.6}
+.src{font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:6px}
+.pthumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+.pth img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:zoom-in;display:block;border:3px solid transparent}
+.pth.s-选入 img{border-color:var(--event)} .pth.s-排除 img{border-color:var(--bad);opacity:.5}
+.pth .pb{display:flex;gap:4px;margin-top:4px}
+.pth .pb button{flex:1;padding:3px 0;font-size:12px}
+.pth .ph{font-size:11px;color:var(--event);margin-top:2px}
+.ptext{font-size:13px;color:var(--muted);margin-top:4px;white-space:pre-wrap;max-height:84px;overflow:auto}
+.gcard{cursor:pointer} .gcard:hover{outline:2px solid var(--accent)}
+.gt{width:100%;border-collapse:collapse;font-size:13px} .gt th,.gt td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.gt th:first-child,.gt td:first-child{text-align:left} .gt.l th,.gt.l td{text-align:left}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.g2>div{min-width:0}
+.g2 .gt td,.g2 .gt th{white-space:normal} .g2 select{max-width:100%}
+@media (max-width:860px){.g2{grid-template-columns:1fr}}
+.gt .me td{background:rgba(31,95,139,.12);font-weight:600}
+.gsec{margin:16px 0 6px;font-size:15px;font-weight:600}
+.tag2{display:inline-block;font-size:11px;padding:0 7px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:4px}
+.tag2.me{color:var(--assist);border-color:var(--assist)} .tag2.g{color:var(--goal);border-color:var(--goal)}
+.bar2{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--line);min-width:120px}
+.bar2 i{display:block;height:100%} .bar2 .o{background:var(--accent)} .bar2 .p{background:var(--other);opacity:.55}
+.miss{display:flex;gap:8px;align-items:baseline;padding:4px 0;border-top:1px solid var(--line);font-size:13px}
+.miss .m{color:var(--muted)}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 12px;z-index:10}
+#modal.on{display:flex}
+.mbox{background:var(--card);border-radius:14px;max-width:820px;width:100%;padding:16px}
+.mbox video{width:100%;border-radius:8px;background:#000;max-height:60vh}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0}
+.form label{font-size:12px;color:var(--muted);display:block}
+.form input,.form select{width:100%}
+.cap{white-space:pre-wrap;background:var(--bg);border-radius:8px;padding:10px;font-size:13px;max-height:200px;overflow:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="title">片段存档</h1>
+    <div class="sub"><a href="clips.csv" download style="color:var(--accent)">导出总表 clips.csv</a> · 数据全在本机</div>
+  </header>
+
+  <div class="box">
+    <b>添加片段 / 照片</b> <span class="hint">粘贴 YouTube 或 X（推特）链接，每行一个；X 帖子里是照片的会自动转到“照片”页</span>
+    <textarea id="urls" placeholder="https://www.youtube.com/watch?v=...&#10;只要集锦里的一段：在链接后面写起止时间，如  https://youtu.be/xxxx 12:30-13:05&#10;同一个视频要取几段，就写几行"></textarea>
+    <div class="row" style="margin-top:8px">
+      <select id="addType"><option value="">类型：自动识别</option></select>
+      <label class="hint">比赛日期 <input type="date" id="addDate"></label>
+      <input id="addOpp" placeholder="对手（可不填）" style="width:130px">
+      <button class="btn primary" id="add">添加并下载</button>
+    </div>
+    <details style="margin-top:8px"><summary class="hint" style="cursor:pointer">只取视频中的一段（单个链接时可以在这里填）</summary>
+      <div class="row" style="margin-top:6px">
+        <input id="addStart" placeholder="起点 如 12:30" style="width:120px">
+        <span class="hint">到</span>
+        <input id="addEnd" placeholder="终点 如 13:05" style="width:120px">
+        <input id="addTitle" placeholder="给这一段起个标题（可不填）" style="flex:1;min-width:180px">
+      </div>
+    </details>
+    <div class="hint" style="margin-top:6px"><b id="startNote"></b> 时间可以写 83、1:23 或 1:02:03。比赛日期不填就用视频发布日期，之后可以改。只下载所选的那一段，文件按“赛季/日期”自动放好。</div>
+    <div id="jobs"></div>
+  </div>
+
+  <div class="row" style="margin-bottom:8px"><button class="chip on" data-v="clips">视频片段</button><button class="chip" data-v="games">比赛</button><button class="chip" data-v="photos">照片<span id="pcount"></span></button></div>
+  <div class="row" id="ranges"></div>
+  <div class="row" style="margin-top:8px">
+    <span id="custom" style="display:none" class="row">
+      <input type="date" id="from"> – <input type="date" id="to">
+    </span>
+  </div>
+
+  <div id="viewClips">
+  <div class="tiles" id="tiles"></div>
+
+  <div class="box" id="nhlBox">
+    <div class="row" style="justify-content:space-between">
+      <span><b>NHL 官方数据</b> <span class="hint" id="nhlUpd"></span></span>
+      <span class="row"><select id="nhlSeason"></select><button class="btn" id="nhlSync">同步官方数据</button></span>
+    </div>
+    <div id="nhlSum" style="margin-top:6px"></div>
+    <div id="nhlMiss"></div>
+  </div>
+
+  <div class="box" id="weeksBox" style="display:none">
+    <b>按周汇总</b> <span class="hint">点一行只看那一周。汇总的是你收藏的片段，漏收的不会计入。</span>
+    <div style="overflow:auto;margin-top:6px"><table id="weeks"></table></div>
+  </div>
+
+  <div class="row" style="margin:14px 0 10px">
+    <span id="types" class="row"></span>
+    <input id="q" placeholder="搜索标题、说明、标签" style="flex:1;min-width:160px">
+    <select id="opp"><option value="">全部对手</option></select>
+    <select id="sort"><option value="new">日期：新到旧</option><option value="old">日期：旧到新</option></select>
+  </div>
+  <div class="hint" id="count" style="margin-bottom:8px"></div>
+  <div class="grid" id="grid"></div>
+  </div>
+
+  <div id="viewGames" style="display:none">
+    <div id="gameList"></div>
+    <div id="gameDetail" style="display:none"></div>
+  </div>
+
+  <div id="viewPhotos" style="display:none">
+    <div class="row" style="margin:6px 0 10px"><span id="pstatus" class="row"></span>
+      <input id="pq" placeholder="搜索帖子文字" style="flex:1;min-width:160px"></div>
+    <div class="hint" style="margin-bottom:8px" id="pinfo"></div>
+    <div id="pgroups"></div>
+  </div>
+</div>
+
+<div id="modal"><div class="mbox" id="mbox"></div></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const api = (u, o) => fetch(u, o).then(r => r.json());
+const post = (u, b) => api(u, {method: "POST", body: JSON.stringify(b)});
+let photos = [], games = [], lineData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = "clips", pstatus = "待确认", START = "";
+let TYPES = [], clips = [], nhl = {events: [], seasons: {}}, range = "week", typeSel = null, openId = null;
+
+// ---------- 日期 ----------
+const pd = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const monday = d => addDays(d, -((d.getDay() + 6) % 7));
+const md = d => `${d.getMonth()+1}/${d.getDate()}`;
+function rangeBounds(){
+  const t = new Date(), m = monday(t);
+  if(range === "week") return [iso(m), iso(addDays(m, 6))];
+  if(range === "lastweek") return [iso(addDays(m, -7)), iso(addDays(m, -1))];
+  if(range === "month") return [iso(new Date(t.getFullYear(), t.getMonth(), 1)), iso(new Date(t.getFullYear(), t.getMonth() + 1, 0))];
+  if(range === "season"){ const y = t.getMonth() >= 6 ? t.getFullYear() : t.getFullYear() - 1; return [`${y}-07-01`, `${y+1}-06-30`]; }
+  if(range === "custom") return [$("from").value || "0000-01-01", $("to").value || "9999-12-31"];
+  return ["0000-01-01", "9999-12-31"];
+}
+const RANGES = [["week","本周"],["lastweek","上周"],["month","本月"],["season","本赛季"],["all","全部"],["custom","自定义"]];
+
+// ---------- 过滤 ----------
+function inRangeD(d){ const [a, b] = rangeBounds(); return d >= a && d <= b; }
+function inRange(c){ return inRangeD(c.game_date); }
+function visible(){
+  const q = $("q").value.trim().toLowerCase(), opp = $("opp").value;
+  let r = clips.filter(c => inRange(c) && (!typeSel || c.type === typeSel) && (!opp || c.opponent === opp) &&
+    (!q || (c.title + " " + c.caption + " " + c.tags + " " + c.opponent + " " + c.notes + " " + (c.summary || "")).toLowerCase().includes(q)));
+  r.sort((a, b) => a.game_date === b.game_date ? a.added.localeCompare(b.added) : a.game_date.localeCompare(b.game_date));
+  return $("sort").value === "new" ? r.reverse() : r;
+}
+
+// ---------- 渲染 ----------
+const tm = s => { s = Math.floor(+s || 0); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return h ? `${h}:${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}` : `${m}:${String(x).padStart(2,"0")}`; };
+const dur = s => { s = +s || 0; const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+  return (h ? h + ":" + String(m).padStart(2,"0") : m) + ":" + String(x).padStart(2,"0"); };
+function render(){
+  $("ranges").innerHTML = RANGES.map(([k, n]) => `<button class="chip ${range===k?"on":""}" data-r="${k}">${n}</button>`).join("");
+  $("custom").style.display = range === "custom" ? "" : "none";
+  document.querySelectorAll("[data-r]").forEach(b => b.onclick = () => { range = b.dataset.r; render(); });
+  $("types").innerHTML = [["", "全部类型"], ...TYPES.map(t => [t, t])].map(([k, n]) =>
+    `<button class="chip ${(typeSel||"")===k?"on":""}" data-t="${k}">${n}</button>`).join("");
+  document.querySelectorAll("[data-t]").forEach(b => b.onclick = () => { typeSel = b.dataset.t || null; render(); });
+
+  const inR = clips.filter(inRange);
+  const sum = k => inR.reduce((a, c) => a + (+c[k] || 0), 0);
+  const cnt = t => inR.filter(c => c.type === t).length;
+  const [a, b] = rangeBounds();
+  $("tiles").innerHTML = `
+    <div class="tile g"><b>${sum("goals")}</b><span>进球</span></div>
+    <div class="tile a"><b>${sum("assists")}</b><span>助攻</span></div>
+    <div class="tile"><b>${sum("goals") + sum("assists")}</b><span>总得分</span></div>
+    <div class="tile i"><b>${cnt("采访")}</b><span>采访</span></div>
+    <div class="tile"><b>${inR.length}</b><span>片段数${range!=="all"&&range!=="custom"?`（${a.slice(5)} ~ ${b.slice(5)}）`:""}</span></div>`;
+
+  // NHL 官方数据对照
+  const have = new Set(clips.map(c => c.id));
+  const ev = (nhl.events || []).filter(e => e.date >= a && e.date <= b);
+  const missing = ev.filter(e => !have.has(e.id));
+  const fetchable = missing.filter(e => e.clip);
+  const upd = Object.values(nhl.seasons || {}).map(s => s.updated).sort().slice(-1)[0];
+  $("nhlUpd").textContent = upd ? "上次同步：" + upd.replace("T", " ").slice(0, 16) : "";
+  if(!(nhl.events || []).length && !upd){
+    $("nhlSum").innerHTML = `<span class="hint">还没有同步过。点右边“同步官方数据”，会读取所选赛季里每一个进球和助攻（包括谁进的球、谁助攻、第几节几分几秒），并找出官方视频片段。</span>`;
+    $("nhlMiss").innerHTML = "";
+  } else {
+    const og = ev.filter(e => e.type === "进球").length, oa = ev.filter(e => e.type === "助攻").length;
+    $("nhlSum").innerHTML = `这个时间范围内，官方记录：<b>进球 ${og}</b> · <b>助攻 ${oa}</b>（共 ${ev.length} 次）。已存档 ${ev.length - missing.length} 个` +
+      (missing.length ? `，<b style="color:var(--goal)">还缺 ${missing.length} 个</b>` : "，<b>已全部收齐</b>") +
+      (fetchable.length ? ` <button class="btn primary" id="nhlGet" style="margin-left:6px">下载缺少的 ${fetchable.length} 个官方片段</button>` : "");
+    $("nhlMiss").innerHTML = missing.map(e => `<div class="miss"><span class="badge ${esc(e.type)}">${esc(e.type)}</span>
+      <span>${esc(e.date.slice(5))} ${e.home ? "主场" : "客场"}对 ${esc(e.opp)} · ${esc(e.moment)}</span>
+      <span class="m">进球 ${esc(e.scorer)}；助攻 ${esc(e.assists.join("、"))}${e.strength ? " · " + esc(e.strength) : ""}</span>
+      ${e.clip ? "" : `<span class="m">（官方暂时还没有视频）</span>`}</div>`).join("");
+    const g = $("nhlGet"); if(g) g.onclick = async () => { g.disabled = true; await post("/api/nhl/fetch", {ids: fetchable.map(e => e.id)}); poll(); };
+  }
+
+  // 按周汇总
+  const weeks = {};
+  inR.forEach(c => { const m = iso(monday(pd(c.game_date))); (weeks[m] ||= {g:0,a:0,i:0,n:0}); const w = weeks[m];
+    w.g += +c.goals || 0; w.a += +c.assists || 0; w.i += c.type === "采访" ? 1 : 0; w.n++; });
+  const ks = Object.keys(weeks).sort().reverse();
+  $("weeksBox").style.display = ks.length > 1 || range === "season" || range === "all" ? "" : "none";
+  $("weeks").innerHTML = `<tr><th>周</th><th class="n">进球</th><th class="n">助攻</th><th class="n">得分</th><th class="n">采访</th><th class="n">片段</th></tr>` +
+    ks.map(k => { const w = weeks[k], s = pd(k); return `<tr class="click" data-w="${k}"><td>${md(s)} – ${md(addDays(s, 6))}</td>
+      <td class="n">${w.g}</td><td class="n">${w.a}</td><td class="n">${w.g + w.a}</td><td class="n">${w.i}</td><td class="n">${w.n}</td></tr>`; }).join("");
+  document.querySelectorAll("[data-w]").forEach(r => r.onclick = () => { range = "custom"; $("from").value = r.dataset.w;
+    $("to").value = iso(addDays(pd(r.dataset.w), 6)); render(); window.scrollTo(0, 0); });
+
+  // 对手下拉
+  const opps = [...new Set(clips.map(c => c.opponent).filter(Boolean))].sort(), cur = $("opp").value;
+  $("opp").innerHTML = `<option value="">全部对手</option>` + opps.map(o => `<option ${o===cur?"selected":""}>${esc(o)}</option>`).join("");
+
+  const v = visible();
+  $("count").textContent = clips.length ? `共 ${v.length} 个片段` : "还没有片段，在上面粘贴第一个链接开始。";
+  $("grid").innerHTML = v.map(c => `<div class="clip" data-id="${esc(c.id)}">
+    <div class="thumb" style="${c.thumb ? `background-image:url('${encodeURI(c.thumb)}')` : ""}"><span class="dur">${c.seg_start !== "" && c.seg_start != null ? "截取 " : ""}${dur(c.duration)}</span></div>
+    <div class="cbody"><div class="t">${esc(c.title)}</div>
+    <div class="meta"><span class="badge ${esc(c.type)}">${esc(c.type)}</span>${esc(c.game_date.slice(5))}${c.opponent ? " · 对 " + esc(c.opponent) : ""}</div>
+    ${c.summary ? `<div class="sum">${esc(c.summary.replace(/^摘要[：:]\s*/, "").split("\n")[0])}</div>` : ""}</div></div>`).join("");
+  document.querySelectorAll(".clip").forEach(el => el.onclick = () => openClip(el.dataset.id));
+  renderPhotos();
+}
+
+
+
+
+
+
+
+
+// ---------- 从上一场复制阵容分组 ----------
+// 规则: 复制上一场你填好的分组, 再用这场的实际情况检查, 对不上的留空:
+//  1) 这场没上场 -> 留空;  2) 位置组对不上(前锋/后卫/门将) -> 留空;
+//  3) 上一场填在中锋格子、这场他不是中锋 -> 留空;  上一场填在边锋格子、这场他像是中锋 -> 留空。
+//  “是不是中锋”用这场的争球次数判断: 争球最多的 4 名前锋(且至少 3 次)视为中锋。左右边锋无法从数据区分, 保留上一场的左右。
+const CENTER_N = 4, CENTER_MIN_FO = 3;
+function centersOf(g){
+  const fw = (g.lineup || {}).forwards || [];
+  if(!fw.length || fw.some(r => r.fo === undefined)) return null;     // 没有争球数据(需要重新同步)
+  return new Set([...fw].sort((a, b) => b.fo - a.fo).slice(0, CENTER_N).filter(r => r.fo >= CENTER_MIN_FO).map(r => r.id));
+}
+function copyFromPrev(g){
+  const p = prevOf(g), pl = p && lineData[String(p.id)]; if(!pl) return null;
+  const cur = dressedMap(g), centers = centersOf(g), blanks = []; let kept = 0;
+  const grpOK = (key, r) => key[0] === "F" ? ["L", "C", "R"].includes(r.pos) : key[0] === "D" ? r.pos === "D" : r.pos === "G";
+  const fix = (id, key) => {
+    if(!id) return null;
+    const r = cur.get(id);
+    if(!r){ blanks.push(`${slotLabel(key)}：${plabel(p, id)} —— 本场没上场`); return null; }
+    if(!grpOK(key, r)){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} —— 本场登记的位置是 ${r.pos}，不在这个位置组`); return null; }
+    if(key[0] === "F" && centers){
+      const slotIsC = key[2] === "1", isC = centers.has(id);
+      if(slotIsC && !isC){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} —— 上一场打中锋，本场只主罚 ${r.fo} 次争球，不像在打中锋`); return null; }
+      if(!slotIsC && isC){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} —— 上一场打边锋，本场主罚了 ${r.fo} 次争球，像是改打中锋`); return null; }
+    }
+    kept++; return id; };
+  const pad = (rows, n, m) => Array.from({length: n}, (_, i) => Array.from({length: m}, (_, j) => (rows || [])[i]?.[j] ?? null));
+  const F = pad(pl.F, 4, 3).map((row, i) => row.map((id, j) => fix(id, `F${i}${j}`)));
+  const D = pad(pl.D, 3, 2).map((row, i) => row.map((id, j) => fix(id, `D${i}${j}`)));
+  const G = [0, 1].map(j => fix((pl.G || [])[j] ?? null, `G${j}0`));
+  return {draft: {F, D, G}, notice: {p, kept, blanks, noFo: !centers}};
+}
+function noticeHTML(){
+  if(!lineNotice) return "";
+  const n = lineNotice;
+  return `<div class="box" style="background:var(--bg);margin:0 0 10px">已复制上一场（${esc(n.p.date.slice(5))} 对 ${esc(n.p.opp)}）的阵容分组：保留 <b>${n.kept}</b> 个位置，留空 <b>${n.blanks.length}</b> 个。
+    ${n.blanks.length ? `<ul class="tight">${n.blanks.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+    <div class="hint">留空的位置，以及这场新上场的球员（上一场没有的），需要你来补。判断“是不是中锋”的依据是这场的争球次数（最多的 4 名前锋、且至少 3 次）；左、右边锋无法从数据区分，保留的是上一场的左右。</div>
+    ${n.noFo ? `<div class="hint" style="color:var(--bad)">这场还没有争球数据，所以没法判断他们是不是改打了中锋，只检查了有没有上场。点页面上的“同步官方数据”可以补上。</div>` : ""}</div>`;
+}
+
+
+// ---------- 卡尔松和谁一起打球 ----------
+const mmss = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+function iceHTML(g){
+  const who = g.player ? g.player.name : "球员", ice = g.ice, title = `<div class="gsec">${esc(who)} 和谁一起打球</div>`;
+  if(ice === undefined) return title + `<div class="box hint">这场还没有上冰组合数据。点页面上的“同步官方数据”读取（用的是官方逐次上冰记录，需要比赛已经结束）。</div>`;
+  if(ice === null || !g.player) return title + `<div class="box hint">本场没有出场记录。</div>`;
+  const T = ice.total || 1, pct = s => Math.round(s / T * 100) + "%", nm = id => esc(plabel(g, id)), pos = id => (dressedMap(g).get(id) || {}).pos || "";
+  const look = a => new Map(a || []);
+  const dAll = ice.d.all.slice(0, 5), d5 = look(ice.d["5v5"]), dPk = look(ice.d.pk), dPp = look(ice.d.pp);
+  const fAll = ice.f.all.slice(0, 9), f5 = look(ice.f["5v5"]), fPp = look(ice.f.pp), fPk = look(ice.f.pk);
+  const cell = (m, k) => m.has(k) ? mmss(m.get(k)) : "–";
+  const centerOf = ids => ids.reduce((a, b) => ((dressedMap(g).get(b) || {}).fo || 0) > ((dressedMap(g).get(a) || {}).fo || 0) ? b : a);
+  return title + `<div class="box" style="overflow:auto">
+    <div>总上冰 <b>${mmss(ice.total)}</b>：5 对 5 ${mmss(ice.sit["5v5"])} · 多打少 ${mmss(ice.sit.pp)} · 少打多 ${mmss(ice.sit.pk)}${ice.sit.other ? " · 其他 " + mmss(ice.sit.other) : ""}</div>
+    <div class="hint" style="margin-top:8px">后卫搭档</div>
+    <table class="gt"><tr><th>后卫</th><th>全部</th><th>占比</th><th>5 对 5</th><th>多打少</th><th>少打多</th></tr>${dAll.map(([id, s]) => `<tr><td>${nm(id)}</td><td><b>${mmss(s)}</b></td><td>${pct(s)}</td><td>${cell(d5, id)}</td><td>${cell(dPp, id)}</td><td>${cell(dPk, id)}</td></tr>`).join("") || `<tr><td colspan="6" class="hint">没有数据</td></tr>`}</table>
+    <div class="hint" style="margin-top:10px">同时在冰上的前锋</div>
+    <table class="gt"><tr><th>前锋</th><th>全部</th><th>占比</th><th>5 对 5</th><th>多打少</th><th>少打多</th></tr>${fAll.map(([id, s]) => `<tr><td>${nm(id)}<span class="tag2">${esc(pos(id))}</span></td><td><b>${mmss(s)}</b></td><td>${pct(s)}</td><td>${cell(f5, id)}</td><td>${cell(fPp, id)}</td><td>${cell(fPk, id)}</td></tr>`).join("") || `<tr><td colspan="6" class="hint">没有数据</td></tr>`}</table>
+    <div class="hint" style="margin-top:10px">5 对 5 时，他在冰上最常见的前锋三人组</div>
+    <table class="gt l"><tr><th>时间</th><th>前锋三人组（争球最多的标“中”）</th></tr>${(ice.trios || []).slice(0, 4).map(([ids, s]) => { const c = centerOf(ids);
+      return `<tr><td>${mmss(s)}</td><td>${ids.map(i => esc((dressedMap(g).get(i) || {}).name || i) + (i === c ? `<span class="tag2 me">中</span>` : "")).join("、")}</td></tr>`; }).join("") || `<tr><td colspan="2" class="hint">没有数据</td></tr>`}</table>
+    <div class="hint" style="margin-top:8px">按官方逐次上冰记录，逐秒统计谁和他同时在冰上（不含门将）。5 对 5、多打少、少打多按冰上双方滑冰人数区分，比赛中撤门将换人时可能不准。他不在的时间不算；样本只有这一场，搭档会随比赛变化。</div></div>`;
+}
+
+// ---------- 阵容分组(手动填写) ----------
+const FL = ["左边锋", "中锋", "右边锋"];
+const dressedMap = g => { const m = new Map(); GRP.forEach(([k]) => ((g.lineup || {})[k] || []).forEach(r => m.set(r.id, r))); return m; };
+const plabel = (g, id) => { const r = id ? dressedMap(g).get(id) : null; return r ? `#${r.num} ${r.name}` : ""; };
+const slotLabel = key => { const t = key[0], i = +key[1], j = +key[2];
+  return t === "F" ? `第${i + 1}线${FL[j]}` : t === "D" ? `第${i + 1}对后卫${j + 1}` : (i === 0 ? "首发门将" : "替补门将"); };
+function slotsOf(L){   // key -> 球员 id
+  const m = new Map(); if(!L) return m;
+  (L.F || []).forEach((row, i) => row.forEach((id, j) => m.set(`F${i}${j}`, id)));
+  (L.D || []).forEach((row, i) => row.forEach((id, j) => m.set(`D${i}${j}`, id)));
+  (L.G || []).forEach((id, j) => m.set(`G${j}0`, id));
+  return m;
+}
+function guessLines(g){
+  const toi = r => toiSec(r.toi) || 0, fw = [...g.lineup.forwards], used = new Set();
+  const pick = pos => fw.filter(r => r.pos === pos).sort((a, b) => toi(b) - toi(a));
+  const Ls = pick("L"), Cs = pick("C"), Rs = pick("R");
+  const F = [0, 1, 2, 3].map(i => [Ls[i]?.id ?? null, Cs[i]?.id ?? null, Rs[i]?.id ?? null]);
+  F.flat().forEach(id => id && used.add(id));
+  const rest = fw.filter(r => !used.has(r.id)).sort((a, b) => toi(b) - toi(a));
+  F.forEach(row => row.forEach((id, j) => { if(!id && rest.length){ row[j] = rest.shift().id; } }));
+  const ds = [...g.lineup.defense].sort((a, b) => toi(b) - toi(a));
+  const D = [0, 1, 2].map(i => [ds[2 * i]?.id ?? null, ds[2 * i + 1]?.id ?? null]);
+  const gs = [...g.lineup.goalies].sort((a, b) => toi(b) - toi(a));
+  return {F, D, G: [gs[0]?.id ?? null, gs[1]?.id ?? null]};
+}
+
+// 按球员选: 位置的编号为 "F.i.j" / "D.i.j" / "G.j"
+function slotKeyOf(d, pid){
+  for(let i = 0; i < d.F.length; i++) for(let j = 0; j < 3; j++) if(d.F[i][j] === pid) return `F.${i}.${j}`;
+  for(let i = 0; i < d.D.length; i++) for(let j = 0; j < 2; j++) if(d.D[i][j] === pid) return `D.${i}.${j}`;
+  for(let j = 0; j < 2; j++) if(d.G[j] === pid) return `G.${j}`;
+  return null;
+}
+const slotGet = (d, k) => { const [t, i, j] = k.split("."); return t === "G" ? d.G[+i] : d[t][+i][+j]; };
+const slotSet = (d, k, v) => { const [t, i, j] = k.split("."); if(t === "G") d.G[+i] = v; else d[t][+i][+j] = v; };
+// 把某个球员放到某个位置; 位置上原来有人, 就和他互换(如果这个球员原本有位置), 否则原来那人变成“未分配”
+function placePlayer(d, pid, key){
+  const old = slotKeyOf(d, pid); if(old) slotSet(d, old, null);
+  if(key){ const other = slotGet(d, key); slotSet(d, key, pid); if(other && old) slotSet(d, old, other); }
+}
+function slotChoices(grp){
+  if(grp === "forwards") return [0, 1, 2, 3].flatMap(i => [0, 1, 2].map(j => [`F.${i}.${j}`, `第${i + 1}线 ${FL[j]}`]));
+  if(grp === "defense") return [0, 1, 2].flatMap(i => [0, 1].map(j => [`D.${i}.${j}`, `第${i + 1}对 后卫${j + 1}`]));
+  return [["G.0", "首发门将"], ["G.1", "替补门将"]];
+}
+function playerModeHTML(g, d){
+  const rows = GRP.map(([k, name]) => { const arr = [...((g.lineup || {})[k] || [])].sort((a, b) => k === "goalies" ? (toiSec(b.toi) || 0) - (toiSec(a.toi) || 0) : a.num - b.num);
+    return `<tr><th colspan="6" style="background:var(--bg)">${name}（${arr.length} 人）</th></tr>` + arr.map(r => { const cur = slotKeyOf(d, r.id);
+      return `<tr><td>#${esc(r.num ?? "")} ${esc(r.name)}</td><td>${esc(r.pos || "")}</td><td>${esc(r.toi || "")}</td><td>${k === "goalies" ? `扑救 ${r.sv ?? ""}` : `${r.g ?? 0} 球 ${r.a ?? 0} 助`}</td>
+        <td><select data-pl="${r.id}" data-grp="${k}"><option value="">（未分配）</option>${slotChoices(k).map(([key, lab]) => { const occ = slotGet(d, key);
+          return `<option value="${key}" ${key === cur ? "selected" : ""}>${lab}${occ && key !== cur ? "（现在是 " + esc(plabel(g, occ)) + "，会互换）" : ""}</option>`; }).join("")}</select></td></tr>`; }).join(""); }).join("");
+  const left = [...dressedMap(g).keys()].filter(id => !slotKeyOf(d, id)).length;
+  return `<table class="gt l"><tr><th>球员（来自 NHL 的出场名单）</th><th>位置</th><th>上场</th><th>本场</th><th>线路</th></tr>${rows}</table>
+    <div class="hint" style="margin-top:6px">${left ? `还有 ${left} 人没分配位置。` : "所有上场球员都已分配。"}选一个已经有人的位置，两个人会自动互换。</div>`;
+}
+
+function linesHTML(g){
+  const gid = String(g.id), L = lineData[gid], editing = lineEdit === gid, pics = photos.filter(p => String(p.game_id) === gid && p.kind === "阵容" && p.status !== "排除");
+  const thumbs = pics.length ? `<div class="pthumbs" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))">${pics.map(p => `<div class="pth"><img src="${encodeURI(p.file)}" data-pid="${esc(p.id)}" alt=""></div>`).join("")}</div><div class="hint">上面是这场的阵容图，点开放大，对着它填。</div>` : "";
+  const opts = (arr, cur) => `<option value="">（空）</option>` + arr.map(r => `<option value="${r.id}" ${r.id === cur ? "selected" : ""}>#${esc(r.num ?? "")} ${esc(r.name)}${r.pos ? "（" + esc(r.pos) + "）" : ""}</option>`).join("");
+  let body;
+  if(editing){
+    const d = lineDraft, fw = [...g.lineup.forwards].sort((a, b) => a.num - b.num), df = [...g.lineup.defense].sort((a, b) => a.num - b.num), gk = g.lineup.goalies;
+    const slotUI = `<table class="gt l"><tr><th></th>${FL.map(x => `<th>${x}</th>`).join("")}</tr>${d.F.map((row, i) => `<tr><td>第${i + 1}线</td>${row.map((id, j) => `<td><select data-slot="F.${i}.${j}">${opts(fw, id)}</select></td>`).join("")}</tr>`).join("")}</table>
+      <table class="gt l" style="margin-top:8px"><tr><th></th><th>后卫 1</th><th>后卫 2</th></tr>${d.D.map((row, i) => `<tr><td>第${i + 1}对</td>${row.map((id, j) => `<td><select data-slot="D.${i}.${j}">${opts(df, id)}</select></td>`).join("")}</tr>`).join("")}</table>
+      <table class="gt l" style="margin-top:8px"><tr><th>门将</th><th>首发</th><th>替补</th></tr><tr><td></td>${d.G.map((id, j) => `<td><select data-slot="G.${j}">${opts(gk, id)}</select></td>`).join("")}</tr></table>`;
+    const prevHas = (() => { const p = prevOf(g); return p && lineData[String(p.id)]; })();
+    body = `${noticeHTML()}<div class="row" style="margin-bottom:8px"><button class="chip ${lineMode === "player" ? "on" : ""}" data-lm="player">按球员选（给每个球员选线路）</button><button class="chip ${lineMode === "slot" ? "on" : ""}" data-lm="slot">按位置选（给每个位置选球员）</button>
+      ${prevHas ? `<button class="btn" id="lCopy">复制上一场的阵容</button>` : ""}<button class="btn" id="lGuess">按位置和上场时间预填（只是猜测）</button></div><div class="hint" style="margin-bottom:8px">名单来自 NHL 官方数据（这场实际上场的人）。预填只是起点，请对照阵容图核对再改。</div>
+      ${lineMode === "player" ? playerModeHTML(g, d) : slotUI}
+      <div class="row" style="margin-top:10px"><button class="btn primary" id="lSave">保存</button><button class="btn" id="lCancel">取消</button><span class="hint" id="lMsg"></span></div>`;
+  } else if(L){
+    const nm = id => id ? esc(plabel(g, id)) : `<span class="hint">—</span>`;
+    body = `<table class="gt l"><tr><th></th>${FL.map(x => `<th>${x}</th>`).join("")}</tr>${(L.F || []).map((row, i) => `<tr><td>第${i + 1}线</td>${row.map(id => `<td>${nm(id)}</td>`).join("")}</tr>`).join("")}</table>
+      <table class="gt l" style="margin-top:8px"><tr><th></th><th>后卫 1</th><th>后卫 2</th></tr>${(L.D || []).map((row, i) => `<tr><td>第${i + 1}对</td>${row.map(id => `<td>${nm(id)}</td>`).join("")}</tr>`).join("")}</table>
+      <div style="margin-top:8px">门将：首发 ${nm((L.G || [])[0])}　替补 ${nm((L.G || [])[1])}</div>
+      <div class="row" style="margin-top:8px"><button class="btn" id="lEdit">编辑</button><button class="btn danger" id="lClear">清除</button><span class="hint">手动填写于 ${esc((L.updated || "").replace("T", " ").slice(0, 16))}</span></div>`;
+  } else {
+    body = `<div class="hint">官方数据只知道谁上场了，不知道谁在哪条线，所以需要你手动填（球队每场会发一张阵容图，可以对着它填）。</div>
+      <div style="margin-top:8px"><button class="btn primary" id="lEdit">填写阵容分组</button></div>`;
+  }
+  return `<div class="gsec">阵容分组（线）<span class="tag2">手动填写</span></div><div class="box" style="overflow:auto">${thumbs}${body}</div>`;
+}
+function wireLines(g){
+  const gid = String(g.id), q = id => document.querySelector("#gameDetail #" + id);
+  const edit = q("lEdit"); if(edit) edit.onclick = () => { lineEdit = gid; const L = lineData[gid]; lineNotice = null;
+    if(L) lineDraft = JSON.parse(JSON.stringify({F: L.F, D: L.D, G: L.G}));
+    else { const c = copyFromPrev(g);   // 这场还没填过: 有上一场的就自动复制过来
+      if(c){ lineDraft = c.draft; lineNotice = c.notice; } else lineDraft = {F: [[null, null, null], [null, null, null], [null, null, null], [null, null, null]], D: [[null, null], [null, null], [null, null]], G: [null, null]}; }
+    renderGameDetail(); };
+  const clr = q("lClear"); if(clr) clr.onclick = async () => { if(!confirm("清除这场比赛的阵容分组？")) return; await post("/api/lines", {game_id: gid, lines: null}); await load(); };
+  const can = q("lCancel"); if(can) can.onclick = () => { lineEdit = null; lineDraft = null; lineNotice = null; renderGameDetail(); };
+  const gs = q("lGuess"); if(gs) gs.onclick = () => { lineDraft = guessLines(g); lineNotice = null; renderGameDetail(); };
+  const cp = q("lCopy"); if(cp) cp.onclick = () => { if(!confirm("用上一场的阵容分组覆盖你现在填的内容？")) return; const c = copyFromPrev(g); if(c){ lineDraft = c.draft; lineNotice = c.notice; renderGameDetail(); } };
+  document.querySelectorAll("#gameDetail select[data-slot]").forEach(sel => sel.onchange = () => {
+    const [t, i, j] = sel.dataset.slot.split("."), v = sel.value ? +sel.value : null, d = lineDraft;
+    if(v){ // 同一个人只能在一个位置: 从别处移走
+      d.F.forEach(r => r.forEach((x, k) => { if(x === v) r[k] = null; })); d.D.forEach(r => r.forEach((x, k) => { if(x === v) r[k] = null; })); d.G.forEach((x, k) => { if(x === v) d.G[k] = null; });
+    }
+    if(t === "G") d.G[+i] = v; else d[t][+i][+j] = v; renderGameDetail(); });
+  document.querySelectorAll("#gameDetail [data-lm]").forEach(b => b.onclick = () => { lineMode = b.dataset.lm; renderGameDetail(); });
+  document.querySelectorAll("#gameDetail select[data-pl]").forEach(sel => sel.onchange = () => { placePlayer(lineDraft, +sel.dataset.pl, sel.value || null); renderGameDetail(); });
+  const sv = q("lSave"); if(sv) sv.onclick = async () => { const r = await post("/api/lines", {game_id: gid, lines: lineDraft});
+    if(r.error){ q("lMsg").textContent = r.error; return; } lineEdit = null; lineDraft = null; lineNotice = null; await load(); };
+}
+function lineChangesHTML(g, p){
+  const cg = lineData[String(g.id)], pg = lineData[String(p.id)];
+  if(!cg || !pg) return `<div style="margin-top:8px" class="hint">${!cg && !pg ? "两场都还没填阵容分组" : !cg ? "这一场还没填阵容分组" : "上一场还没填阵容分组"}，填好后这里会显示线路层面的变化（谁换了线、哪个位置换了人）。</div>`;
+  const cs = slotsOf(cg), ps = slotsOf(pg), changes = [];
+  new Set([...cs.keys(), ...ps.keys()]).forEach(k => { const a = ps.get(k) ?? null, b = cs.get(k) ?? null;
+    if(a !== b) changes.push(`<li>${slotLabel(k)}：${a ? esc(plabel(p, a)) : "（空）"}（上一场） → ${b ? esc(plabel(g, b)) : "（空）"}（本场）</li>`); });
+  const mv = [], pk = new Map([...ps].filter(([, v]) => v).map(([k, v]) => [v, k]));
+  cs.forEach((id, k) => { if(id && pk.has(id) && pk.get(id) !== k) mv.push(`<li>${esc(plabel(g, id))}：${slotLabel(pk.get(id))} → ${slotLabel(k)}</li>`); });
+  return `<div style="margin-top:10px;padding-top:8px;border-top:1px dashed var(--line)"><b>线路层面的变化</b> <span class="hint">（根据你手动填的阵容分组）</span>
+    ${changes.length ? `<ul class="tight">${changes.join("")}</ul>` : `<div>阵容分组和上一场完全一样。</div>`}
+    ${mv.length ? `<div style="margin-top:6px"><b>换了位置的球员</b><ul class="tight">${mv.join("")}</ul></div>` : ""}</div>`;
+}
+
+// ---------- 阵容变动: 和存档里的上一场比较 ----------
+const GRP = [["forwards", "前锋"], ["defense", "后卫"], ["goalies", "门将"]];
+const toiSec = t => { const m = /^(\d+):(\d+)$/.exec(t || ""); return m ? (+m[1]) * 60 + (+m[2]) : null; };
+function prevOf(g){
+  const asc = [...games].sort((a, b) => a.date.localeCompare(b.date) || String(a.id).localeCompare(String(b.id)));
+  const i = asc.findIndex(x => String(x.id) === String(g.id));
+  return i > 0 ? asc[i - 1] : null;
+}
+function rosterDiff(g){
+  const p = prevOf(g); if(!p) return null;
+  const mk = x => { const m = new Map(); GRP.forEach(([k, n]) => ((x.lineup || {})[k] || []).forEach(r => m.set(r.id, {...r, grp: k, grpName: n}))); return m; };
+  const cur = mk(g), prev = mk(p), scrNow = new Set(g.scratches || []), scrPrev = new Set(p.scratches || []);
+  const ins = [...cur.values()].filter(r => !prev.has(r.id)).map(r => ({...r, why: scrPrev.has(r.name) ? "上一场是看台球员" : "上一场不在出场名单里"}));
+  const outs = [...prev.values()].filter(r => !cur.has(r.id)).map(r => ({...r, why: scrNow.has(r.name) ? "本场是看台球员" : "本场不在名单里（官方数据没写原因，可能是伤病、下放或交易）"}));
+  // 对位: 同一组(前锋/后卫/门将)里先配同位置的, 再配剩下的。只是“位置上的对应”, 不代表真的上了同一条线
+  const pairs = [], used = new Set();
+  [true, false].forEach(strict => ins.forEach(i => { if(i.paired) return;
+    const o = outs.find(o => o.grp === i.grp && !used.has(o.id) && (!strict || o.pos === i.pos));
+    if(o){ used.add(o.id); i.paired = true; pairs.push([i, o]); } }));
+  const short = [...cur.values()].filter(r => r.grp !== "goalies" && toiSec(r.toi) !== null && toiSec(r.toi) < 300);
+  const gl = (g.lineup.goalies || []).filter(r => toiSec(r.toi) > 0);
+  const gPrev = (p.lineup.goalies || []).filter(r => toiSec(r.toi) > 0);
+  return {p, ins, outs, pairs, short, goalies: gl, gPrev, same: !ins.length && !outs.length};
+}
+const pl = r => `#${esc(r.num ?? "")} ${esc(r.name)}（${esc(r.pos || r.grpName)}）`;
+function rosterHTML(g){
+  const d = rosterDiff(g);
+  if(!d) return `<div class="gsec">阵容变动</div><div class="box hint">存档里没有这场之前的比赛（上一场早于起始日期，没有收录），所以没法比较。</div>`;
+  const row = (title, arr, f) => arr.length ? `<div style="margin-top:8px"><b>${title}（${arr.length}）</b><ul class="tight">${arr.map(f).join("")}</ul></div>` : "";
+  return `<div class="gsec">与上一场相比的人员变动 <span class="hint" style="font-weight:400">（上一场：${esc(d.p.date.slice(5))} 对 ${esc(d.p.opp)}）</span></div>
+    <div class="box">${d.same ? `<b>出场名单和上一场完全一样。</b>` : ""}
+      ${row("新上场", d.ins, r => `<li>${pl(r)} <span class="tag2 g">${esc(r.why)}</span></li>`)}
+      ${row("本场没上场", d.outs, r => `<li>${pl(r)} <span class="tag2">${esc(r.why)}</span></li>`)}
+      ${d.pairs.length ? `<div style="margin-top:8px"><b>位置上的对应</b> <span class="hint">（同位置的新上场球员对应没上场的球员，不代表一定上了同一条线）</span><ul class="tight">${d.pairs.map(([i, o]) => `<li>${pl(i)} ← ${pl(o)}</li>`).join("")}</ul></div>` : ""}
+      ${d.goalies.length > 1 ? `<div style="margin-top:8px"><b>本场两位门将都上场了</b>（可能是中途换人，官方数据只给了各自的上场时间，没有先后顺序）：${d.goalies.map(r => `${esc(r.name)} ${esc(r.toi)}`).join("、")}</div>` : ""}
+      ${(d.goalies[0] && d.gPrev[0] && d.goalies[0].id !== d.gPrev[0].id) ? `<div style="margin-top:8px"><b>首发门将变了</b>：上一场 ${esc(d.gPrev[0].name)}，本场 ${esc(d.goalies[0].name)}</div>` : ""}
+      ${d.short.length ? `<div style="margin-top:8px"><b>上场时间很短（不到 5 分钟）</b> <span class="hint">仅供参考，可能是提前离场、被罚或战术安排，官方数据没写原因</span><ul class="tight">${d.short.map(r => `<li>${pl(r)} · ${esc(r.toi)}</li>`).join("")}</ul></div>` : ""}
+      ${(g.scratches || []).length ? `<div style="margin-top:8px" class="hint">本场看台名单：${g.scratches.map(esc).join("、")}</div>` : ""}
+      ${lineChangesHTML(g, d.p)}
+    </div>`;
+}
+
+// ---------- 比赛 ----------
+const OUTC = {"胜": "var(--event)", "负": "var(--bad)", "加时负": "var(--goal)", "点球负": "var(--goal)"};
+const SCAT = [["sog", "射门"], ["hits", "冲撞"], ["blockedShots", "封堵"], ["giveaways", "失误"], ["takeaways", "抢断"], ["pim", "罚时（分钟）"],
+  ["powerPlay", "多打少（进球/机会）"], ["faceoffWinningPctg", "发球胜率"]];
+const fv = (k, v) => k === "faceoffWinningPctg" ? (Math.round(v * 1000) / 10) + "%" : v;
+const gLabel = g => `${g.date.slice(5)} ${g.home ? "主场" : "客场"}对 ${g.opp}`;
+function gameItems(g){
+  const gid = String(g.id);
+  return {cs: clips.filter(c => String(c.game_id) === gid), ps: photos.filter(p => String(p.game_id) === gid && p.status !== "排除"),
+    miss: (nhl.events || []).filter(e => String(e.game_id) === gid && !clips.find(c => c.id === e.id))};
+}
+function clipHTML(c){
+  return `<div class="clip" data-id="${esc(c.id)}"><div class="thumb" style="${c.thumb ? `background-image:url('${encodeURI(c.thumb)}')` : ""}"><span class="dur">${dur(c.duration)}</span></div>
+    <div class="cbody"><div class="t">${esc(c.title)}</div><div class="meta"><span class="badge ${esc(c.type)}">${esc(c.type)}</span>${esc(c.moment || "")}</div>
+    ${c.summary ? `<div class="sum">${esc(c.summary.replace(/^摘要[：:]\s*/, "").split("\n")[0])}</div>` : ""}</div></div>`;
+}
+function renderGames(){
+  if(view !== "games") return;
+  if(openGame && games.find(g => String(g.id) === String(openGame))){ $("gameList").style.display = "none"; $("gameDetail").style.display = ""; return renderGameDetail(); }
+  openGame = null; $("gameDetail").style.display = "none"; $("gameList").style.display = "";
+  const list = games.filter(g => inRangeD(g.date));
+  $("gameList").innerHTML = `<div class="row" style="justify-content:space-between;margin:6px 0 10px"><span class="hint">${games.length ? `共 ${list.length} 场（按上面的时间范围筛选）。点一场进去看详情。` : ""}</span>
+    <button class="btn" id="gSync">同步官方数据</button></div>` + (!games.length
+    ? `<div class="box hint">还没有比赛数据。点右上角“同步官方数据”，会读取本赛季已结束的比赛：比分、全队数据对比、出场名单、进球时间线，并把你已有的视频、采访、照片按日期归到对应的比赛里。</div>` : "") +
+    list.map(g => { const it = gameItems(g), m = g.player, hl = it.cs.filter(c => c.type === "进球" || c.type === "助攻").length, iv = it.cs.filter(c => c.type === "采访").length;
+      return `<div class="box gcard" data-g="${esc(g.id)}"><div class="row" style="justify-content:space-between"><span><b>${esc(g.date.slice(5))}</b> ${g.home ? "主场" : "客场"}对 <b>${esc(g.opp)}</b></span>
+        <span><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(g.outcome)}</span></span></div>
+        <div class="hint" style="margin-top:4px">${m ? `Karlsson：进球 ${m.g} · 助攻 ${m.a} · 得分 ${m.pts} · 冲撞 ${m.hits} · 射门 ${m.sog} · ${esc(m.toi)}` : "Karlsson：本场没有出场记录"}</div>
+        <div class="hint">${(() => { const d = rosterDiff(g); return d ? (d.same ? "阵容无变动" : `阵容变动：新上场 ${d.ins.length} · 没上场 ${d.outs.length}`) : "没有上一场可比"; })()}</div>
+        <div class="hint">已存档：进球/助攻视频 ${hl} · 采访 ${iv} · 照片 ${it.ps.length}${it.miss.length ? ` · <b style="color:var(--goal)">官方还有 ${it.miss.length} 个片段没下载</b>` : ""}</div></div>`; }).join("");
+  document.querySelectorAll("[data-g]").forEach(el => el.onclick = () => { openGame = el.dataset.g; renderGames(); window.scrollTo(0, 0); });
+  const sb = $("gSync"); if(sb) sb.onclick = async () => { sb.disabled = true; await post("/api/nhl/sync", {season: $("nhlSeason").value}); poll(); };
+}
+function renderGameDetail(){
+  const g = games.find(x => String(x.id) === String(openGame)), it = gameItems(g), m = g.player, L = g.lineup || {};
+  const clipsBy = f => it.cs.filter(f).sort((a, b) => (a.moment || "").localeCompare(b.moment || ""));
+  const sec = (title, arr, extra = "") => arr.length || extra ? `<div class="gsec">${title}</div>${arr.length ? `<div class="grid">${arr.map(clipHTML).join("")}</div>` : ""}${extra}` : "";
+  const pr = r => `<tr class="${r.id === Number(openPid()) ? "me" : ""}"><td>${esc(r.num ?? "")} ${esc(r.name)}</td><td>${esc(r.pos || "")}</td><td>${r.g ?? ""}</td><td>${r.a ?? ""}</td><td>${r.pts ?? ""}</td><td>${r.pm ?? ""}</td><td>${r.hits ?? ""}</td><td>${r.sog ?? ""}</td><td>${r.blk ?? ""}</td><td>${esc(r.toi || "")}</td></tr>`;
+  const head = `<tr><th>球员</th><th>位置</th><th>进球</th><th>助攻</th><th>得分</th><th>+/-</th><th>冲撞</th><th>射门</th><th>封堵</th><th>上场</th></tr>`;
+  const photoGroup = k => { const a = it.ps.filter(p => (p.kind || "其他") === k); return a.length ? `<div class="hint" style="margin:8px 0 2px">${k === "数据表" ? "数据表图" : k === "阵容" ? "阵容图" : "其他照片"}</div><div class="pthumbs">${a.map(p => `<div class="pth s-${esc(p.status)}"><img src="${encodeURI(p.file)}" loading="lazy" data-pid="${esc(p.id)}" alt=""><div class="ph" style="color:var(--muted)">${esc(p.status)}</div></div>`).join("")}</div>` : ""; };
+  $("gameDetail").innerHTML = `<button class="btn" id="gBack">← 返回比赛列表</button>
+    <div class="box" style="margin-top:10px"><div class="row" style="justify-content:space-between"><span style="font-size:18px"><b>${esc(g.date)}</b> ${g.home ? "主场" : "客场"}对 <b>${esc(g.opp)}</b></span>
+      <span style="font-size:18px"><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(g.outcome)}</span></span></div>
+      <div class="hint">${esc(g.venue)} · 主教练 ${esc(g.coach)}（对手 ${esc(g.opp_coach)}）${(g.stars || []).length ? " · 三星：" + g.stars.map(s => `${s.star}. ${esc(s.name)}（${esc(s.team)}）`).join("　") : ""}</div></div>
+    <div class="gsec">Karlsson 本场数据</div>
+    <div class="box" style="overflow:auto">${m ? `<table class="gt">${head}${pr(m)}</table>` : `<span class="hint">本场没有出场记录。</span>`}</div>
+    <div class="gsec">全队数据对比</div>
+    <div class="box" style="overflow:auto"><table class="gt"><tr><th></th><th>PIT</th><th></th><th>${esc(g.opp)}</th></tr>${SCAT.filter(([k]) => g.team_stats && g.team_stats[k]).map(([k, n]) => { const t = g.team_stats[k], a = parseFloat(t.our) || 0, b = parseFloat(t.opp) || 0, s = a + b || 1;
+      return `<tr><td>${n}</td><td><b>${fv(k, t.our)}</b></td><td><div class="bar2"><i class="o" style="width:${a / s * 100}%"></i><i class="p" style="width:${b / s * 100}%"></i></div></td><td>${fv(k, t.opp)}</td></tr>`; }).join("")}</table></div>
+    <div class="g2"><div>${linesHTML(g)}</div><div>${iceHTML(g)}</div></div>
+    ${rosterHTML(g)}
+    <div class="gsec">进球时间线</div>
+    <div class="box" style="overflow:auto"><table class="gt l"><tr><th>时间</th><th>球队</th><th>进球（助攻）</th><th>比分</th><th></th></tr>${(g.scoring || []).map(x => { const c = x.clip && clips.find(cc => cc.id === x.clip);
+      return `<tr class="${x.mine ? "me" : ""}"><td>${esc(x.period)} ${esc(x.time || "")}</td><td>${esc(x.team)}</td><td>${esc(x.scorer)}${x.assists.length ? "（" + esc(x.assists.join("、")) + "）" : ""}${x.strength === "pp" ? `<span class="tag2">多打少</span>` : x.strength === "sh" ? `<span class="tag2">少打多</span>` : ""}${x.mine ? `<span class="tag2 me">他的${esc(x.mine)}</span>` : ""}</td><td>${esc(x.score)}</td>
+        <td>${c ? `<a href="#" data-oc="${esc(c.id)}" style="color:var(--accent)">▶ 视频</a>` : (x.mine ? `<span class="hint">未下载</span>` : "")}</td></tr>`; }).join("")}</table></div>
+    ${sec("进球 / 助攻视频", clipsBy(c => c.type === "进球" || c.type === "助攻"), it.miss.length ? `<div class="box"><b style="color:var(--goal)">官方记录里还有 ${it.miss.length} 个片段没下载</b> <button class="btn primary" id="gGet" style="margin-left:8px">下载这 ${it.miss.filter(e => e.clip).length} 个</button></div>` : "")}
+    ${sec("赛前采访", clipsBy(c => c.type === "采访" && c.phase === "赛前"))}
+    ${sec("赛后采访", clipsBy(c => c.type === "采访" && c.phase === "赛后"))}
+    ${sec("采访（还没标注赛前/赛后）", clipsBy(c => c.type === "采访" && !c.phase))}
+    ${sec("其他视频", clipsBy(c => !["进球", "助攻", "采访"].includes(c.type)))}
+    ${it.ps.length ? `<div class="gsec">照片</div>${photoGroup("阵容")}${photoGroup("数据表")}${photoGroup("其他")}` : ""}
+    <div class="gsec">出场名单（PIT）</div>
+    <div class="box" style="overflow:auto"><div class="hint">前锋</div><table class="gt">${head}${(L.forwards || []).map(pr).join("")}</table>
+      <div class="hint" style="margin-top:8px">后卫</div><table class="gt">${head}${(L.defense || []).map(pr).join("")}</table>
+      <div class="hint" style="margin-top:8px">门将</div><table class="gt"><tr><th>球员</th><th>面对射门</th><th>扑救</th><th>失球</th><th>扑救率</th><th>结果</th><th>上场</th></tr>${(L.goalies || []).map(r => `<tr><td>${esc(r.num ?? "")} ${esc(r.name)}</td><td>${r.sa ?? ""}</td><td>${r.sv ?? ""}</td><td>${r.ga ?? ""}</td><td>${r.svp != null ? (Math.round(r.svp * 1000) / 1000).toFixed(3) : ""}</td><td>${esc(r.dec || "")}</td><td>${esc(r.toi || "")}</td></tr>`).join("")}</table>
+      ${(g.scratches || []).length ? `<div class="hint" style="margin-top:8px">看台名单：${g.scratches.map(esc).join("、")}</div>` : ""}</div>
+    <div class="hint" style="margin-top:10px">数据来自 NHL 官方公开接口。表格想存成图片，可以用 macOS 的截图（Shift+Command+4）。</div>`;
+  $("gBack").onclick = () => { openGame = null; lineEdit = null; lineDraft = null; lineNotice = null; renderGames(); };
+  wireLines(g);
+  document.querySelectorAll("#gameDetail .clip").forEach(el => el.onclick = () => openClip(el.dataset.id));
+  document.querySelectorAll("#gameDetail [data-pid]").forEach(im => im.onclick = () => openPhoto(im.dataset.pid));
+  document.querySelectorAll("#gameDetail [data-oc]").forEach(a => a.onclick = e => { e.preventDefault(); openClip(a.dataset.oc); });
+  const gg = $("gGet"); if(gg) gg.onclick = async () => { gg.disabled = true; await post("/api/nhl/fetch", {ids: it.miss.filter(e => e.clip).map(e => e.id)}); poll(); };
+}
+let _pid = 0; const openPid = () => _pid;
+
+// ---------- 照片 ----------
+const PST = ["待确认", "选入", "排除"];
+function renderPhotos(){
+  const pend = photos.filter(p => p.status === "待确认").length;
+  $("pcount").textContent = pend ? ` (${pend} 待确认)` : "";
+  document.querySelectorAll("[data-v]").forEach(b => b.classList.toggle("on", b.dataset.v === view));
+  $("viewClips").style.display = view === "clips" ? "" : "none";
+  $("viewGames").style.display = view === "games" ? "" : "none";
+  $("viewPhotos").style.display = view === "photos" ? "" : "none";
+  renderGames();
+  if(view !== "photos") return;
+  const cnt = s => photos.filter(p => p.status === s).length;
+  $("pstatus").innerHTML = PST.map(s => `<button class="chip ${pstatus===s?"on":""}" data-ps="${s}">${s === "选入" ? "已选入" : s === "排除" ? "已排除" : s} ${cnt(s)}</button>`).join("");
+  document.querySelectorAll("[data-ps]").forEach(b => b.onclick = () => { pstatus = b.dataset.ps; renderPhotos(); });
+  const q = $("pq").value.trim().toLowerCase();
+  const list = photos.filter(p => p.status === pstatus && inRangeD(p.date) && (!q || (p.text + " " + p.alt + " " + p.note).toLowerCase().includes(q)));
+  const groups = {};
+  list.forEach(p => (groups[p.tweet_id] ||= []).push(p));
+  const ids = Object.keys(groups).sort((a, b) => groups[b][0].date.localeCompare(groups[a][0].date) || (a < b ? 1 : -1));
+  $("pinfo").textContent = !photos.length ? "还没有照片。在上面粘贴 X（推特）帖子的链接，如果帖子里是照片，会把整组图下载下来，在这里逐张选“有他的”。"
+    : `${list.length} 张，来自 ${ids.length} 条帖子。${pstatus === "待确认" ? "点每张下面的“选入”或“排除”；选入的会按赛季和日期放进文件夹，排除的收进“_已排除”，随时可以改回来。" : ""}`;
+  $("pgroups").innerHTML = ids.map(t => { const g = groups[t].sort((a, b) => a.idx - b.idx), f = g[0];
+    return `<div class="box"><div class="row" style="justify-content:space-between"><span><b>${esc(f.date.slice(5))}</b> · @${esc(f.author)} ·
+      <a href="${esc(f.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">原帖</a> <span class="hint">（共 ${f.count} 张）</span></span>
+      ${pstatus === "待确认" ? `<span class="row"><button class="btn" data-all="${t}|选入">本页全部选入</button><button class="btn" data-all="${t}|排除">本页全部排除</button></span>` : ""}</div>
+      <div class="ptext">${esc(f.text)}</div>
+      ${g.some(p => p.hint) ? `<div class="hint" style="color:var(--event)">提示：${esc(g.find(p => p.hint).hint)}（只是文字线索，具体哪张有他要你来看）</div>` : ""}
+      <div class="pthumbs">${g.map(p => `<div class="pth s-${esc(p.status)}"><img src="${encodeURI(p.file)}" loading="lazy" data-pid="${esc(p.id)}" alt="">
+        <div class="pb">${PST.filter(s => s !== p.status).map(s => `<button class="btn" data-mk="${esc(p.id)}|${s}">${s === "选入" ? "✓ 选入" : s === "排除" ? "✗ 排除" : "↺ 待确认"}</button>`).join("")}</div>
+        ${p.alt ? `<div class="ph" title="${esc(p.alt)}">有图片说明</div>` : ""}</div>`).join("")}</div></div>`; }).join("");
+  document.querySelectorAll("[data-mk]").forEach(b => b.onclick = async () => { const [id, st] = b.dataset.mk.split("|"); await post("/api/photo/mark", {ids: [id], status: st}); await load(); });
+  document.querySelectorAll("[data-all]").forEach(b => b.onclick = async () => { const [t, st] = b.dataset.all.split("|");
+    await post("/api/photo/mark", {ids: groups[t].map(p => p.id), status: st}); await load(); });
+  document.querySelectorAll("[data-pid]").forEach(im => im.onclick = () => openPhoto(im.dataset.pid));
+}
+function openPhoto(id){
+  const p = photos.find(x => x.id === id); if(!p) return;
+  $("mbox").innerHTML = `<img src="${encodeURI(p.file)}" style="width:100%;border-radius:8px;max-height:70vh;object-fit:contain;background:#000" alt="">
+    <div class="form"><div><label>日期</label><input type="date" id="p_date" value="${esc(p.date)}"></div>
+      <div style="grid-column:span 2"><label>我的备注</label><input id="p_note" value="${esc(p.note)}"></div>
+      <div style="grid-column:span 2"><label>所属比赛</label><select id="p_game"><option value="">（不属于某场比赛）</option>${games.map(g => `<option value="${esc(g.id)}" ${String(g.id)===String(p.game_id)?"selected":""}>${esc(g.date)} ${g.home?"vs":"@"} ${esc(g.opp)}</option>`).join("")}</select></div>
+      <div><label>照片类型</label><select id="p_kind">${["阵容", "数据表", "其他"].map(x => `<option ${x===(p.kind||"其他")?"selected":""}>${x}</option>`).join("")}</select></div></div>
+    <div class="cap">${esc(p.text) || "（没有文字）"}${p.alt ? "\n\n图片说明：" + esc(p.alt) : ""}</div>
+    <div class="hint" style="margin-top:6px">状态：${esc(p.status)} · <a href="${esc(p.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">原帖</a> · 文件：${esc(p.file)}</div>
+    <div class="row" style="margin-top:10px;justify-content:space-between"><span class="row"><button class="btn primary" id="psave">保存</button><button class="btn" id="close">关闭</button></span>
+      <button class="btn danger" id="pdel">删除</button></div><div class="hint" id="msg"></div>`;
+  $("modal").classList.add("on");
+  $("close").onclick = closeModal;
+  $("psave").onclick = async () => { const r = await post("/api/photo/update", {id, fields: {date: $("p_date").value, note: $("p_note").value, game_id: $("p_game").value, kind: $("p_kind").value}});
+    if(r.error){ $("msg").textContent = r.error; return; } await load(); openPhoto(id); $("msg").textContent = "已保存"; };
+  $("pdel").onclick = async () => { if(!confirm("删除这张照片？文件会移到 library/.trash 文件夹。")) return; await post("/api/photo/delete", {id}); closeModal(); load(); };
+}
+document.querySelectorAll("[data-v]").forEach(b => b.onclick = () => { view = b.dataset.v; renderPhotos(); });
+$("pq").oninput = renderPhotos;
+
+// ---------- 弹窗 ----------
+function openClip(id){
+  const c = clips.find(x => x.id === id); if(!c) return; openId = id;
+  $("mbox").innerHTML = `
+    <video controls preload="metadata" src="${encodeURI(c.video)}" ${c.thumb ? `poster="${encodeURI(c.thumb)}"` : ""}></video>
+    <div class="hint" id="vinfo" style="margin-top:6px">画质：读取中…</div>
+    <div class="form">
+      <div style="grid-column:1/-1"><label>标题</label><input id="f_title" value="${esc(c.title)}"></div>
+      <div><label>比赛日期</label><input type="date" id="f_game_date" value="${esc(c.game_date)}"></div>
+      <div><label>类型</label><select id="f_type">${TYPES.map(t => `<option ${t===c.type?"selected":""}>${t}</option>`).join("")}</select></div>
+      <div><label>进球数</label><input type="number" min="0" id="f_goals" value="${c.goals}"></div>
+      <div><label>助攻数</label><input type="number" min="0" id="f_assists" value="${c.assists}"></div>
+      <div><label>对手</label><input id="f_opponent" value="${esc(c.opponent)}"></div>
+      <div><label>时刻（如 第2节 12:34）</label><input id="f_moment" value="${esc(c.moment)}"></div>
+      <div style="grid-column:span 2"><label>所属比赛</label><select id="f_game_id"><option value="">（不属于某场比赛）</option>${games.map(g => `<option value="${esc(g.id)}" ${String(g.id)===String(c.game_id)?"selected":""}>${esc(g.date)} ${g.home?"vs":"@"} ${esc(g.opp)}  ${g.our_score}–${g.opp_score}</option>`).join("")}</select></div>
+      <div><label>采访阶段</label><select id="f_phase">${["", "赛前", "赛后"].map(x => `<option value="${x}" ${x===(c.phase||"")?"selected":""}>${x || "（不适用）"}</option>`).join("")}</select></div>
+      <div style="grid-column:1/-1"><label>标签（用逗号分隔）</label><input id="f_tags" value="${esc(c.tags)}"></div>
+      <div style="grid-column:1/-1"><label>我的备注</label><input id="f_notes" value="${esc(c.notes)}"></div>
+    </div>
+    <div style="margin:10px 0 4px"><b style="font-size:13px">内容摘要</b><span class="src" id="sumSrc">${esc(c.summary_src || "未生成")}</span></div>
+    <textarea class="sumbox" id="f_summary" placeholder="${c.type === "采访" ? "还没有摘要。点下面的“生成摘要”：先在本机转写成英文逐字稿，再用云端模型总结。" : "还没有摘要，可以自己写几句。"}">${esc(c.summary || "")}</textarea>
+    <div class="row" style="margin-top:4px">
+      ${["采访", "活动", "其他"].includes(c.type) ? `<button class="btn" id="gen">${c.summary ? "重新生成摘要" : "生成摘要"}</button>` : ""}
+      ${c.transcript ? `<details id="trd" style="flex:1"><summary class="hint" style="cursor:pointer">查看英文逐字稿（用来核对摘要）</summary><div class="cap" id="trtext">加载中…</div></details>` : ""}
+    </div>
+    <div class="hint">${["采访", "活动", "其他"].includes(c.type) ? "AI 摘要由云端模型根据英文逐字稿生成（视频本身不会上传），可能漏掉重点或把话说错，请对照逐字稿核对；你改过的内容会标为“手写”。" : "进球/助攻的摘要由官方数据直接生成。"}</div>
+    ${c.seg_start !== "" && c.seg_start != null ? `<div class="hint" style="margin-bottom:6px">截取自完整视频的 ${tm(c.seg_start)} – ${tm(c.seg_end)}（想改起止时间：删除后重新添加）</div>` : ""}
+    <div class="hint" style="margin-bottom:4px">视频下面的原文字说明</div>
+    <div class="cap">${esc(c.caption) || "（没有文字说明）"}</div>
+    <div class="hint" style="margin-top:8px">来源：<a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(c.channel || c.source_url)}</a> · 文件：${esc(c.video)}</div>
+    <div class="row" style="margin-top:12px;justify-content:space-between">
+      <span class="row"><button class="btn primary" id="save">保存修改</button><button class="btn" id="close">关闭</button></span>
+      <button class="btn danger" id="del">删除</button></div>
+    <div class="hint" id="msg"></div>`;
+  $("modal").classList.add("on");
+  api("/api/probe?id=" + encodeURIComponent(id)).then(p => { const el = $("vinfo"); if(!el || openId !== id) return;
+    el.textContent = p.error ? "画质：" + p.error : `画质：${p.width}×${p.height} · ${p.fps} 帧/秒 · 视频 ${(p.vbr / 1e6).toFixed(1)} Mbps · ${p.vcodec}` +
+      (p.acodec ? ` · 音频 ${p.acodec} ${Math.round(p.abr / 1000)} kbps` : "") + ` · ${(p.size / 1e6).toFixed(1)} MB`; });
+  $("f_type").onchange = () => { const t = $("f_type").value; $("f_goals").value = t === "进球" ? 1 : 0; $("f_assists").value = t === "助攻" ? 1 : 0; };
+  $("close").onclick = closeModal;
+  const gen = $("gen"); if(gen) gen.onclick = async () => {
+    if(c.summary && !confirm("重新生成会覆盖现在的摘要（包括你手写的内容），确定吗？")) return;
+    gen.disabled = true; gen.textContent = "已开始，进度见页面顶部的任务列表";
+    const r = await post("/api/summarize", {id}); if(r.error) alert(r.error); poll(); };
+  const trd = $("trd"); if(trd) trd.ontoggle = async () => { if(trd.open && !trd.dataset.done){ trd.dataset.done = 1;
+    try { $("trtext").textContent = await (await fetch(encodeURI(c.transcript))).text(); } catch(e){ $("trtext").textContent = "读取失败"; } } };
+  $("save").onclick = async () => {
+    const f = {}; ["title","game_date","type","goals","assists","opponent","moment","tags","notes","summary","game_id","phase"].forEach(k => f[k] = $("f_" + k).value);
+    const r = await post("/api/update", {id, fields: f});
+    if(r.error){ $("msg").textContent = r.error; return; }
+    await load(); openClip(id); $("msg").textContent = "已保存";
+  };
+  $("del").onclick = async () => {
+    if(!confirm("删除这个片段？文件会移到 library/.trash 文件夹，不会立刻彻底删除。")) return;
+    await post("/api/delete", {id}); closeModal(); load();
+  };
+}
+function closeModal(){ $("modal").classList.remove("on"); const v = document.querySelector("#mbox video"); if(v) v.pause(); $("mbox").innerHTML = ""; openId = null; }
+$("modal").onclick = e => { if(e.target === $("modal")) closeModal(); };
+document.onkeydown = e => { if(e.key === "Escape") closeModal(); };
+
+// ---------- 添加 ----------
+let timer = null;
+const seenJobs = new Set();
+$("add").onclick = async () => {
+  const r = await post("/api/add", {urls: $("urls").value, type: $("addType").value, date: $("addDate").value, opponent: $("addOpp").value.trim(),
+    start: $("addStart").value, end: $("addEnd").value, title: $("addTitle").value});
+  if(r.error){ alert(r.error); return; }
+  if(r.warn) alert("有几行没能识别，已跳过：" + r.warn);
+  $("urls").value = ""; $("addStart").value = $("addEnd").value = $("addTitle").value = ""; poll();
+};
+async function poll(){
+  clearTimeout(timer);
+  const js = await api("/api/jobs");
+  const run = js.filter(j => !j.done), bad = js.filter(j => j.error), ok = js.filter(j => j.done && !j.error);
+  $("jobs").innerHTML = (js.length ? `<div class="hint">进行中 ${run.length} · 已完成 ${ok.length} · 失败 ${bad.length}</div>` : "") +
+    [...run, ...bad].slice(0, 8).map(j => `<div class="job ${j.error ? "err" : ""}">${esc(j.url.slice(0, 70))} — ${esc(j.stage)}${j.error ? "：" + esc(j.error) : ""}</div>`).join("") +
+    (!run.length ? ok.slice(-2).map(j => `<div class="job">${esc(j.url.slice(0, 70))} — ${esc(j.stage)}</div>`).join("") : "");
+  const fresh = js.filter(j => j.done && !seenJobs.has(j.id));
+  fresh.forEach(j => seenJobs.add(j.id));
+  const added = js.some(j => j.done && !j.error && j.clip && !clips.find(c => c.id === j.clip));
+  if(fresh.some(j => j.photos)){ view = "photos"; pstatus = "待确认"; }
+  if(added || fresh.length || (js.some(j => j.done && j.stage.startsWith("完成：")) && !run.length)){
+    await load();
+    // 正在看的片段如果刚生成了摘要, 只更新摘要框, 不覆盖其他还没保存的修改
+    if(openId && fresh.some(j => j.clip === openId)){ const c = clips.find(x => x.id === openId);
+      if(c && $("f_summary")){ $("f_summary").value = c.summary || ""; $("sumSrc").textContent = c.summary_src || "未生成";
+        const g = $("gen"); if(g){ g.disabled = false; g.textContent = "重新生成摘要"; } } }
+  }
+  $("nhlSync").disabled = js.some(j => !j.done && j.url === "同步 NHL 官方数据");
+  if(run.length) timer = setTimeout(poll, 2500);
+}
+async function load(){ let gm, ln; [clips, nhl, photos, gm, ln] = await Promise.all([api("/api/clips"), api("/api/nhl"), api("/api/photos"), api("/api/games"), api("/api/lines")]); games = gm.games || []; lineData = ln || {}; render(); }
+$("nhlSync").onclick = async () => { $("nhlSync").disabled = true; await post("/api/nhl/sync", {season: $("nhlSeason").value}); poll(); };
+
+["q","opp","sort","from","to"].forEach(id => $(id).oninput = $(id).onchange = render);
+(async () => {
+  const cfg = await api("/api/config"); TYPES = cfg.types;
+  document.title = cfg.title; $("title").textContent = cfg.title; _pid = cfg.nhl_player_id || 0;
+  $("addType").innerHTML = `<option value="">类型：自动识别</option>` + TYPES.map(t => `<option>${t}</option>`).join("");
+  const t = new Date(), y0 = t.getMonth() >= 6 ? t.getFullYear() : t.getFullYear() - 1;
+  START = cfg.archive_start || "";
+  $("nhlSeason").innerHTML = [0, 1, 2].filter(k => !START || `${y0 - k + 1}-06-30` >= START).map(k => { const y = y0 - k; return `<option value="${y}${y+1}">${y}-${String(y+1).slice(2)} 赛季${k===0?"（本赛季）":""}</option>`; }).join("");
+  if(START){ $("addDate").min = START; $("startNote").textContent = `只收录 ${START} 之后的内容，更早的会自动跳过。`; }
+  await load(); poll();
+})();
+</script>
+</body>
+</html>

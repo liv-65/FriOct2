@@ -1,0 +1,807 @@
+{
+ "games": [
+  {
+   "id": "2026020006",
+   "date": "2026-09-30",
+   "season": "20262027",
+   "type": 2,
+   "opp": "PHI",
+   "home": false,
+   "our_score": 7,
+   "opp_score": 0,
+   "outcome": "胜",
+   "venue": "Xfinity Mobile Arena",
+   "coach": "Dan Muse",
+   "opp_coach": "Rick Tocchet",
+   "stars": [
+    {
+     "name": "F. Hallander",
+     "team": "PIT",
+     "star": 1
+    },
+    {
+     "name": "A. Silovs",
+     "team": "PIT",
+     "star": 2
+    },
+    {
+     "name": "V. Koivunen",
+     "team": "PIT",
+     "star": 3
+    }
+   ],
+   "scoring": [
+    {
+     "period": "第1节",
+     "time": "07:26",
+     "team": "PIT",
+     "scorer": "N. Robertson",
+     "assists": [
+      "K. Letang",
+      "S. Crosby"
+     ],
+     "score": "1–0",
+     "strength": "ev",
+     "clip": "6405991467112",
+     "mine": ""
+    },
+    {
+     "period": "第1节",
+     "time": "15:44",
+     "team": "PIT",
+     "scorer": "V. Koivunen",
+     "assists": [
+      "S. Girard",
+      "K. Korczak"
+     ],
+     "score": "2–0",
+     "strength": "ev",
+     "clip": "6405991488112",
+     "mine": ""
+    },
+    {
+     "period": "第2节",
+     "time": "05:03",
+     "team": "PIT",
+     "scorer": "E. Malkin",
+     "assists": [
+      "H. Lapierre",
+      "T. Novak"
+     ],
+     "score": "3–0",
+     "strength": "pp",
+     "clip": "6405991049112",
+     "mine": ""
+    },
+    {
+     "period": "第2节",
+     "time": "07:26",
+     "team": "PIT",
+     "scorer": "H. Lapierre",
+     "assists": [
+      "F. Hallander",
+      "D. Carlile"
+     ],
+     "score": "4–0",
+     "strength": "ev",
+     "clip": "6405991733112",
+     "mine": ""
+    },
+    {
+     "period": "第2节",
+     "time": "10:23",
+     "team": "PIT",
+     "scorer": "F. Hallander",
+     "assists": [
+      "K. Korczak",
+      "S. Girard"
+     ],
+     "score": "5–0",
+     "strength": "ev",
+     "clip": "6405992838112",
+     "mine": ""
+    },
+    {
+     "period": "第3节",
+     "time": "11:52",
+     "team": "PIT",
+     "scorer": "N. Robertson",
+     "assists": [
+      "F. Hallander"
+     ],
+     "score": "6–0",
+     "strength": "sh",
+     "clip": "6405995614112",
+     "mine": ""
+    },
+    {
+     "period": "第3节",
+     "time": "16:37",
+     "team": "PIT",
+     "scorer": "E. Chinakhov",
+     "assists": [
+      "E. Karlsson",
+      "R. Rakell"
+     ],
+     "score": "7–0",
+     "strength": "pp",
+     "clip": "6405993778112",
+     "mine": "助攻"
+    }
+   ],
+   "team_stats": {
+    "sog": {
+     "our": 38,
+     "opp": 19
+    },
+    "faceoffWinningPctg": {
+     "our": 0.37931,
+     "opp": 0.62069
+    },
+    "powerPlay": {
+     "our": "2/4",
+     "opp": "0/3"
+    },
+    "pim": {
+     "our": 8,
+     "opp": 10
+    },
+    "hits": {
+     "our": 23,
+     "opp": 28
+    },
+    "blockedShots": {
+     "our": 11,
+     "opp": 8
+    },
+    "giveaways": {
+     "our": 11,
+     "opp": 21
+    },
+    "takeaways": {
+     "our": 3,
+     "opp": 5
+    }
+   },
+   "player": {
+    "id": 8474578,
+    "num": 65,
+    "name": "E. Karlsson",
+    "pos": "D",
+    "toi": "19:59",
+    "g": 0,
+    "a": 1,
+    "pts": 1,
+    "pm": 1,
+    "pim": 0,
+    "hits": 0,
+    "sog": 3,
+    "blk": 1,
+    "give": 3,
+    "take": 0,
+    "fo": 0
+   },
+   "lineup": {
+    "forwards": [
+     {
+      "id": 8480842,
+      "num": 11,
+      "name": "F. Hallander",
+      "pos": "C",
+      "toi": "10:55",
+      "g": 1,
+      "a": 2,
+      "pts": 3,
+      "pm": 4,
+      "pim": 0,
+      "hits": 1,
+      "sog": 3,
+      "blk": 0,
+      "give": 0,
+      "take": 0,
+      "fo": 0
+     },
+     {
+      "id": 8481582,
+      "num": 14,
+      "name": "N. Robertson",
+      "pos": "L",
+      "toi": "15:02",
+      "g": 2,
+      "a": 0,
+      "pts": 2,
+      "pm": 2,
+      "pim": 2,
+      "hits": 0,
+      "sog": 4,
+      "blk": 1,
+      "give": 0,
+      "take": 0,
+      "fo": 0
+     },
+     {
+      "id": 8478438,
+      "num": 18,
+      "name": "T. Novak",
+      "pos": "C",
+      "toi": "16:04",
+      "g": 0,
+      "a": 1,
+      "pts": 1,
+      "pm": 0,
+      "pim": 0,
+      "hits": 0,
+      "sog": 0,
+      "blk": 1,
+      "give": 1,
+      "take": 0,
+      "fo": 13
+     },
+     {
+      "id": 8480980,
+      "num": 19,
+      "name": "C. Dewar",
+      "pos": "C",
+      "toi": "14:51",
+      "g": 0,
+      "a": 0,
+      "pts": 0,
+      "pm": 0,
+      "pim": 2,
+      "hits": 4,
+      "sog": 0,
+      "blk": 1,
+      "give": 0,
+      "take": 0,
+      "fo": 1
+     },
+     {
+      "id": 8482148,
+      "num": 22,
+      "name": "H. Lapierre",
+      "pos": "C",
+      "toi": "13:02",
+      "g": 1,
+      "a": 1,
+      "pts": 2,
+      "pm": 3,
+      "pim": 0,
+      "hits": 4,
+      "sog": 1,
+      "blk": 0,
+      "give": 1,
+      "take": 0,
+      "fo": 6
+     },
+     {
+      "id": 8481725,
+      "num": 25,
+      "name": "E. Soderblom",
+      "pos": "L",
+      "toi": "12:39",
+      "g": 0,
+      "a": 0,
+      "pts": 0,
+      "pm": 0,
+      "pim": 0,
+      "hits": 2,
+      "sog": 0,
+      "blk": 0,
+      "give": 0,
+      "take": 1,
+      "fo": 0
+     },
+     {
+      "id": 8482758,
+      "num": 41,
+      "name": "V. Koivunen",
+      "pos": "R",
+      "toi": "13:50",
+      "g": 1,
+      "a": 0,
+      "pts": 1,
+      "pm": 3,
+      "pim": 0,
+      "hits": 0,
+      "sog": 2,
+      "blk": 0,
+      "give": 0,
+      "take": 0,
+      "fo": 0
+     },
+     {
+      "id": 8481481,
+      "num": 46,
+      "name": "B. Lizotte",
+      "pos": "C",
+      "toi": "13:13",
+      "g": 0,
+      "a": 0,
+      "pts": 0,
+      "pm": 0,
+      "pim": 0,
+      "hits": 0,
+      "sog": 4,
+      "blk": 1,
+      "give": 2,
+      "take": 0,
+      "fo": 16
+     },
+     {
+      "id": 8482475,
+      "num": 59,
+      "name": "E. Chinakhov",
+      "pos": "R",
+      "toi": "16:58",
+      "g": 1,
+      "a": 0,
+      "pts": 1,
+      "pm": 0,
+      "pim": 0,
+      "hits": 1,
+      "sog": 3,
+      "blk": 0,
+      "give": 1,
+      "take": 0,
+      "fo": 0
+     },
+     {
+      "id": 8476483,
+      "num": 67,
+      "name": "R. Rakell",
+      "pos": "R",
+      "toi": "18:32",
+      "g": 0,
+      "a": 1,
+      "pts": 1,
+      "pm": 1,
+      "pim": 0,
+      "hits": 3,
+      "sog": 2,
+      "blk": 0,
+      "give": 0,
+      "take": 0,
+      "fo": 2
+     },
+     {
+      "id": 8471215,
+      "num": 71,
+      "name": "E. Malkin",
+      "pos": "C",
+      "toi": "15:47",
+      "g": 1,
+      "a": 0,
+      "pts": 1,
+      "pm": 0,
+      "pim": 0,
+      "hits": 0,
+      "sog": 2,
+      "blk": 0,
+      "give": 0,
+      "take": 0,
+      "fo": 0
+     },
+     {
+      "id": 8471675,
+      "num": 87,
+      "name": "S. Crosby",
+      "pos": "C",
+      "toi": "17:39",
+      "g": 0,
+      "a": 1,
+      "pts": 1,
+      "pm": 1,
+      "pim": 0,
+      "hits": 2,
+      "sog": 3,
+      "blk": 0,
+      "give": 0,
+      "take": 0,
+      "fo": 20
+     }
+    ],
+    "defense": [
+     {
+      "id": 8481527,
+      "num": 6,
+      "name": "K. Korczak",
+      "pos": "D",
+      "toi": "18:31",
+      "g": 0,
+      "a": 2,
+      "pts": 2,
+      "pm": 3,
+      "pim": 0,
+      "hits": 1,
+      "sog": 3,
+      "blk": 2,
+      "give": 0,
+      "take": 0,
+      "fo": 0
+     },
+     {
+      "id": 8479398,
+      "num": 49,
+      "name": "S. Girard",
+      "pos": "D",
+      "toi": "21:02",
+      "g": 0,
+      "a": 2,
+      "pts": 2,
+      "pm": 3,
+      "pim": 0,
+      "hits": 1,
+      "sog": 2,
+      "blk": 0,
+      "give": 0,
+      "take": 1,
+      "fo": 0
+     },
+     {
+      "id": 8477845,
+      "num": 57,
+      "name": "T. van Riemsdyk",
+      "pos": "D",
+      "toi": "20:42",
+      "g": 0,
+      "a": 0,
+      "pts": 0,
+      "pm": 1,
+      "pim": 0,
+      "hits": 1,
+      "sog": 0,
+      "blk": 4,
+      "give": 1,
+      "take": 0,
+      "fo": 0
+     },
+     {
+      "id": 8471724,
+      "num": 58,
+      "name": "K. Letang",
+      "pos": "D",
+      "toi": "18:44",
+      "g": 0,
+      "a": 1,
+      "pts": 1,
+      "pm": 1,
+      "pim": 0,
+      "hits": 2,
+      "sog": 4,
+      "blk": 0,
+      "give": 2,
+      "take": 1,
+      "fo": 0
+     },
+     {
+      "id": 8474578,
+      "num": 65,
+      "name": "E. Karlsson",
+      "pos": "D",
+      "toi": "19:59",
+      "g": 0,
+      "a": 1,
+      "pts": 1,
+      "pm": 1,
+      "pim": 0,
+      "hits": 0,
+      "sog": 3,
+      "blk": 1,
+      "give": 3,
+      "take": 0,
+      "fo": 0
+     },
+     {
+      "id": 8483398,
+      "num": 72,
+      "name": "D. Carlile",
+      "pos": "D",
+      "toi": "16:30",
+      "g": 0,
+      "a": 1,
+      "pts": 1,
+      "pm": 1,
+      "pim": 4,
+      "hits": 1,
+      "sog": 2,
+      "blk": 0,
+      "give": 0,
+      "take": 0,
+      "fo": 0
+     }
+    ],
+    "goalies": [
+     {
+      "id": 8483703,
+      "num": 1,
+      "name": "S. Murashov",
+      "pos": "G",
+      "toi": "00:00",
+      "pim": 0,
+      "ga": 0,
+      "sa": 0,
+      "sv": 0
+     },
+     {
+      "id": 8481668,
+      "num": 37,
+      "name": "A. Silovs",
+      "pos": "G",
+      "toi": "60:00",
+      "pim": 0,
+      "ga": 0,
+      "sa": 19,
+      "sv": 19,
+      "svp": 1.0,
+      "dec": "W"
+     }
+    ]
+   },
+   "scratches": [
+    "D. Gustafsson",
+    "I. Solovyov",
+    "R. McGroarty"
+   ],
+   "updated": "2026-10-02T20:21:01",
+   "ice": {
+    "pid": 8474578,
+    "total": 1199,
+    "sit": {
+     "5v5": 760,
+     "pp": 304,
+     "pk": 135,
+     "other": 0
+    },
+    "d": {
+     "all": [
+      [
+       8483398,
+       687
+      ],
+      [
+       8481527,
+       114
+      ],
+      [
+       8479398,
+       50
+      ],
+      [
+       8471724,
+       48
+      ],
+      [
+       8477845,
+       10
+      ]
+     ],
+     "5v5": [
+      [
+       8483398,
+       668
+      ],
+      [
+       8479398,
+       44
+      ],
+      [
+       8471724,
+       43
+      ]
+     ],
+     "pp": [],
+     "pk": [
+      [
+       8481527,
+       111
+      ],
+      [
+       8483398,
+       19
+      ]
+     ]
+    },
+    "f": {
+     "all": [
+      [
+       8476483,
+       668
+      ],
+      [
+       8471675,
+       643
+      ],
+      [
+       8482475,
+       421
+      ],
+      [
+       8481582,
+       347
+      ],
+      [
+       8478438,
+       334
+      ],
+      [
+       8482758,
+       253
+      ],
+      [
+       8480842,
+       250
+      ],
+      [
+       8481725,
+       204
+      ],
+      [
+       8482148,
+       196
+      ],
+      [
+       8471215,
+       168
+      ],
+      [
+       8480980,
+       156
+      ],
+      [
+       8481481,
+       131
+      ]
+     ],
+     "5v5": [
+      [
+       8471675,
+       341
+      ],
+      [
+       8481582,
+       328
+      ],
+      [
+       8476483,
+       309
+      ],
+      [
+       8482148,
+       176
+      ],
+      [
+       8482758,
+       169
+      ],
+      [
+       8471215,
+       156
+      ],
+      [
+       8480842,
+       151
+      ],
+      [
+       8480980,
+       140
+      ],
+      [
+       8481725,
+       138
+      ],
+      [
+       8481481,
+       130
+      ],
+      [
+       8482475,
+       121
+      ],
+      [
+       8478438,
+       114
+      ]
+     ],
+     "pp": [
+      [
+       8482475,
+       300
+      ],
+      [
+       8476483,
+       292
+      ],
+      [
+       8471675,
+       283
+      ],
+      [
+       8478438,
+       220
+      ],
+      [
+       8482758,
+       84
+      ],
+      [
+       8482148,
+       20
+      ],
+      [
+       8471215,
+       12
+      ]
+     ],
+     "pk": [
+      [
+       8480842,
+       99
+      ],
+      [
+       8476483,
+       67
+      ],
+      [
+       8481725,
+       66
+      ],
+      [
+       8481582,
+       19
+      ],
+      [
+       8471675,
+       19
+      ],
+      [
+       8480980,
+       16
+      ]
+     ]
+    },
+    "trios": [
+     [
+      [
+       8471675,
+       8476483,
+       8481582
+      ],
+      287
+     ],
+     [
+      [
+       8480842,
+       8482148,
+       8482758
+      ],
+      139
+     ],
+     [
+      [
+       8480980,
+       8481481,
+       8481725
+      ],
+      103
+     ],
+     [
+      [
+       8471215,
+       8478438,
+       8482475
+      ],
+      100
+     ],
+     [
+      [
+       8471215,
+       8471675,
+       8481582
+      ],
+      24
+     ]
+    ]
+   }
+  }
+ ]
+}
