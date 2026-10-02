@@ -174,7 +174,7 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 const api = (u, o) => fetch(u, o).then(r => r.json());
 const post = (u, b) => api(u, {method: "POST", body: JSON.stringify(b)});
 let photos = [], games = [], lineData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = "clips", pstatus = "待确认", START = "";
-let TYPES = [], clips = [], nhl = {events: [], seasons: {}}, range = "week", typeSel = null, openId = null;
+let TYPES = [], clips = [], nhl = {events: [], seasons: {}}, range = "week", typeSel = null, openId = null, editing = false;
 
 // ---------- 日期 ----------
 const pd = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
@@ -344,8 +344,8 @@ function iceHTML(g){
     <div class="hint" style="margin-top:10px">同时在冰上的前锋</div>
     <table class="gt"><tr><th>前锋</th><th>全部</th><th>占比</th><th>5 对 5</th><th>多打少</th><th>少打多</th></tr>${fAll.map(([id, s]) => `<tr><td>${nm(id)}<span class="tag2">${esc(pos(id))}</span></td><td><b>${mmss(s)}</b></td><td>${pct(s)}</td><td>${cell(f5, id)}</td><td>${cell(fPp, id)}</td><td>${cell(fPk, id)}</td></tr>`).join("") || `<tr><td colspan="6" class="hint">没有数据</td></tr>`}</table>
     <div class="hint" style="margin-top:10px">5 对 5 时，他在冰上最常见的前锋三人组</div>
-    <table class="gt l"><tr><th>时间</th><th>前锋三人组（争球最多的标“中”）</th></tr>${(ice.trios || []).slice(0, 4).map(([ids, s]) => { const c = centerOf(ids);
-      return `<tr><td>${mmss(s)}</td><td>${ids.map(i => esc((dressedMap(g).get(i) || {}).name || i) + (i === c ? `<span class="tag2 me">中</span>` : "")).join("、")}</td></tr>`; }).join("") || `<tr><td colspan="2" class="hint">没有数据</td></tr>`}</table>
+    <table class="gt l"><tr><th>时间</th><th>前锋三人组（争球最多的标“C”）</th></tr>${(ice.trios || []).slice(0, 4).map(([ids, s]) => { const c = centerOf(ids);
+      return `<tr><td>${mmss(s)}</td><td>${ids.map(i => esc((dressedMap(g).get(i) || {}).name || i) + (i === c ? `<span class="tag2 me">C</span>` : "")).join("、")}</td></tr>`; }).join("") || `<tr><td colspan="2" class="hint">没有数据</td></tr>`}</table>
     <div class="hint" style="margin-top:8px">按官方逐次上冰记录，逐秒统计谁和他同时在冰上（不含门将）。5 对 5、多打少、少打多按冰上双方滑冰人数区分，比赛中撤门将换人时可能不准。他不在的时间不算；样本只有这一场，搭档会随比赛变化。</div></div>`;
 }
 
@@ -642,11 +642,37 @@ document.querySelectorAll("[data-v]").forEach(b => b.onclick = () => { view = b.
 $("pq").oninput = renderPhotos;
 
 // ---------- 弹窗 ----------
-function openClip(id){
-  const c = clips.find(x => x.id === id); if(!c) return; openId = id;
-  $("mbox").innerHTML = `
-    <video controls preload="metadata" src="${encodeURI(c.video)}" ${c.thumb ? `poster="${encodeURI(c.thumb)}"` : ""}></video>
-    <div class="hint" id="vinfo" style="margin-top:6px">画质：读取中…</div>
+function openClip(id, edit = false){
+  const c = clips.find(x => x.id === id); if(!c) return; openId = id; editing = edit;
+  const gen_ok = ["采访", "活动", "其他"].includes(c.type);
+  const g = games.find(x => String(x.id) === String(c.game_id));
+  const segInfo = c.seg_start !== "" && c.seg_start != null ? `<div class="hint" style="margin-bottom:6px">截取自完整视频的 ${tm(c.seg_start)} – ${tm(c.seg_end)}${edit ? "（想改起止时间：删除后重新添加）" : ""}</div>` : "";
+  const trBlock = c.transcript ? `<details id="trd" style="flex:1"><summary class="hint" style="cursor:pointer">查看英文逐字稿（用来核对摘要）</summary><div class="cap" id="trtext">加载中…</div></details>` : "";
+  const srcLine = `<div class="hint" style="margin-top:8px">来源：<a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(c.channel || c.source_url)}</a> · 文件：${esc(c.video)}</div>`;
+  const head = `<video controls preload="metadata" src="${encodeURI(c.video)}" ${c.thumb ? `poster="${encodeURI(c.thumb)}"` : ""}></video>
+    <div class="hint" id="vinfo" style="margin-top:6px">画质：读取中…</div>`;
+  if(!edit){
+    const meta = [c.game_date, c.type, c.opponent && "对手 " + c.opponent, (+c.goals ? `进球 ${c.goals}` : ""), (+c.assists ? `助攻 ${c.assists}` : ""), c.moment, c.phase,
+      g && `${g.home ? "vs" : "@"} ${g.opp} ${g.our_score}–${g.opp_score}`].filter(Boolean).map(esc).join(" · ");
+    const sum = (c.summary || "").trim();
+    $("mbox").innerHTML = head + `
+    <h3 style="margin:10px 0 4px">${esc(c.title)}</h3>
+    <div class="hint">${meta}</div>
+    ${c.tags ? `<div class="hint" style="margin-top:4px">标签：${esc(c.tags)}</div>` : ""}
+    <div style="margin:12px 0 4px"><b style="font-size:13px">内容摘要</b><span class="src" id="sumSrc">${esc(c.summary_src || "未生成")}</span></div>
+    <div class="cap" id="sumView" style="max-height:none">${sum ? esc(sum) : "（还没有摘要，点“编辑”可以自己写，或在下面生成）"}</div>
+    <div class="row" style="margin-top:4px">${gen_ok ? `<button class="btn" id="gen">${c.summary ? "重新生成摘要" : "生成摘要"}</button>` : ""}${trBlock}</div>
+    ${c.notes ? `<div class="hint" style="margin:10px 0 4px">我的备注</div><div class="cap">${esc(c.notes)}</div>` : ""}
+    ${segInfo}
+    <div class="hint" style="margin:10px 0 4px">视频下面的原文字说明</div>
+    <div class="cap">${esc(c.caption) || "（没有文字说明）"}</div>
+    ${srcLine}
+    <div class="row" style="margin-top:12px;justify-content:space-between">
+      <span class="row"><button class="btn primary" id="edit">编辑</button><button class="btn" id="close">关闭</button></span>
+      <button class="btn danger" id="del">删除</button></div>
+    <div class="hint" id="msg"></div>`;
+  } else {
+    $("mbox").innerHTML = head + `
     <div class="form">
       <div style="grid-column:1/-1"><label>标题</label><input id="f_title" value="${esc(c.title)}"></div>
       <div><label>比赛日期</label><input type="date" id="f_game_date" value="${esc(c.game_date)}"></div>
@@ -662,37 +688,40 @@ function openClip(id){
     </div>
     <div style="margin:10px 0 4px"><b style="font-size:13px">内容摘要</b><span class="src" id="sumSrc">${esc(c.summary_src || "未生成")}</span></div>
     <textarea class="sumbox" id="f_summary" placeholder="${c.type === "采访" ? "还没有摘要。点下面的“生成摘要”：先在本机转写成英文逐字稿，再用云端模型总结。" : "还没有摘要，可以自己写几句。"}">${esc(c.summary || "")}</textarea>
-    <div class="row" style="margin-top:4px">
-      ${["采访", "活动", "其他"].includes(c.type) ? `<button class="btn" id="gen">${c.summary ? "重新生成摘要" : "生成摘要"}</button>` : ""}
-      ${c.transcript ? `<details id="trd" style="flex:1"><summary class="hint" style="cursor:pointer">查看英文逐字稿（用来核对摘要）</summary><div class="cap" id="trtext">加载中…</div></details>` : ""}
-    </div>
-    <div class="hint">${["采访", "活动", "其他"].includes(c.type) ? "AI 摘要由云端模型根据英文逐字稿生成（视频本身不会上传），可能漏掉重点或把话说错，请对照逐字稿核对；你改过的内容会标为“手写”。" : "进球/助攻的摘要由官方数据直接生成。"}</div>
-    ${c.seg_start !== "" && c.seg_start != null ? `<div class="hint" style="margin-bottom:6px">截取自完整视频的 ${tm(c.seg_start)} – ${tm(c.seg_end)}（想改起止时间：删除后重新添加）</div>` : ""}
+    <div class="row" style="margin-top:4px">${gen_ok ? `<button class="btn" id="gen">${c.summary ? "重新生成摘要" : "生成摘要"}</button>` : ""}${trBlock}</div>
+    <div class="hint">${gen_ok ? "AI 摘要由云端模型根据英文逐字稿生成（视频本身不会上传），可能漏掉重点或把话说错，请对照逐字稿核对；你改过的内容会标为“手写”。" : "进球/助攻的摘要由官方数据直接生成。"}</div>
+    ${segInfo}
     <div class="hint" style="margin-bottom:4px">视频下面的原文字说明</div>
     <div class="cap">${esc(c.caption) || "（没有文字说明）"}</div>
-    <div class="hint" style="margin-top:8px">来源：<a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(c.channel || c.source_url)}</a> · 文件：${esc(c.video)}</div>
+    ${srcLine}
     <div class="row" style="margin-top:12px;justify-content:space-between">
-      <span class="row"><button class="btn primary" id="save">保存修改</button><button class="btn" id="close">关闭</button></span>
+      <span class="row"><button class="btn primary" id="save">保存修改</button><button class="btn" id="cancel">取消</button></span>
       <button class="btn danger" id="del">删除</button></div>
     <div class="hint" id="msg"></div>`;
+  }
   $("modal").classList.add("on");
   api("/api/probe?id=" + encodeURIComponent(id)).then(p => { const el = $("vinfo"); if(!el || openId !== id) return;
     el.textContent = p.error ? "画质：" + p.error : `画质：${p.width}×${p.height} · ${p.fps} 帧/秒 · 视频 ${(p.vbr / 1e6).toFixed(1)} Mbps · ${p.vcodec}` +
       (p.acodec ? ` · 音频 ${p.acodec} ${Math.round(p.abr / 1000)} kbps` : "") + ` · ${(p.size / 1e6).toFixed(1)} MB`; });
-  $("f_type").onchange = () => { const t = $("f_type").value; $("f_goals").value = t === "进球" ? 1 : 0; $("f_assists").value = t === "助攻" ? 1 : 0; };
-  $("close").onclick = closeModal;
+  if(edit){
+    $("f_type").onchange = () => { const t = $("f_type").value; $("f_goals").value = t === "进球" ? 1 : 0; $("f_assists").value = t === "助攻" ? 1 : 0; };
+    $("cancel").onclick = () => openClip(id);
+    $("save").onclick = async () => {
+      const f = {}; ["title","game_date","type","goals","assists","opponent","moment","tags","notes","summary","game_id","phase"].forEach(k => f[k] = $("f_" + k).value);
+      const r = await post("/api/update", {id, fields: f});
+      if(r.error){ $("msg").textContent = r.error; return; }
+      await load(); openClip(id); $("msg").textContent = "已保存";
+    };
+  } else {
+    $("close").onclick = closeModal;
+    $("edit").onclick = () => openClip(id, true);
+  }
   const gen = $("gen"); if(gen) gen.onclick = async () => {
     if(c.summary && !confirm("重新生成会覆盖现在的摘要（包括你手写的内容），确定吗？")) return;
     gen.disabled = true; gen.textContent = "已开始，进度见页面顶部的任务列表";
     const r = await post("/api/summarize", {id}); if(r.error) alert(r.error); poll(); };
   const trd = $("trd"); if(trd) trd.ontoggle = async () => { if(trd.open && !trd.dataset.done){ trd.dataset.done = 1;
     try { $("trtext").textContent = await (await fetch(encodeURI(c.transcript))).text(); } catch(e){ $("trtext").textContent = "读取失败"; } } };
-  $("save").onclick = async () => {
-    const f = {}; ["title","game_date","type","goals","assists","opponent","moment","tags","notes","summary","game_id","phase"].forEach(k => f[k] = $("f_" + k).value);
-    const r = await post("/api/update", {id, fields: f});
-    if(r.error){ $("msg").textContent = r.error; return; }
-    await load(); openClip(id); $("msg").textContent = "已保存";
-  };
   $("del").onclick = async () => {
     if(!confirm("删除这个片段？文件会移到 library/.trash 文件夹，不会立刻彻底删除。")) return;
     await post("/api/delete", {id}); closeModal(); load();
@@ -727,7 +756,8 @@ async function poll(){
     await load();
     // 正在看的片段如果刚生成了摘要, 只更新摘要框, 不覆盖其他还没保存的修改
     if(openId && fresh.some(j => j.clip === openId)){ const c = clips.find(x => x.id === openId);
-      if(c && $("f_summary")){ $("f_summary").value = c.summary || ""; $("sumSrc").textContent = c.summary_src || "未生成";
+      if(c && $("sumView")) $("sumView").textContent = (c.summary || "").trim() || "（还没有摘要，点“编辑”可以自己写，或在下面生成）";
+      if(c && ($("f_summary") || $("sumView"))){ if($("f_summary")) $("f_summary").value = c.summary || ""; $("sumSrc").textContent = c.summary_src || "未生成";
         const g = $("gen"); if(g){ g.disabled = false; g.textContent = "重新生成摘要"; } } }
   }
   $("nhlSync").disabled = js.some(j => !j.done && j.url === "同步 NHL 官方数据");
