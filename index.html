@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>片段存档</title>
+<title>Clip Archive</title>
 <style>
 :root{
   --bg:#f5f4f0; --card:#fff; --ink:#1f2328; --muted:#6b7280; --line:#e3e0d8;
@@ -93,32 +93,32 @@ td.n,th.n{text-align:right}
 <body>
 <div class="wrap">
   <header>
-    <h1 id="title">片段存档</h1>
-    <div class="sub"><a href="clips.csv" download style="color:var(--accent)">导出总表 clips.csv</a> · 数据全在本机</div>
+    <h1 id="title">Clip Archive</h1>
+    <div class="sub"><a href="clips.csv" download style="color:var(--accent)">Export clips.csv</a> · All data stays on this computer</div>
   </header>
 
   <div class="box">
-    <b>添加片段 / 照片</b> <span class="hint">粘贴 YouTube 或 X（推特）链接，每行一个；X 帖子里是照片的会自动转到“照片”页</span>
-    <textarea id="urls" placeholder="https://www.youtube.com/watch?v=...&#10;只要集锦里的一段：在链接后面写起止时间，如  https://youtu.be/xxxx 12:30-13:05&#10;同一个视频要取几段，就写几行"></textarea>
+    <b>Add clips / photos</b> <span class="hint">Paste YouTube or X (Twitter) links, one per line. X posts with photos go to the Photos tab automatically.</span>
+    <textarea id="urls" placeholder="https://www.youtube.com/watch?v=...&#10;To take only part of a video, add start-end times after the link, e.g.  https://youtu.be/xxxx 12:30-13:05&#10;For several parts of one video, use one line per part"></textarea>
     <div class="row" style="margin-top:8px">
-      <select id="addType"><option value="">类型：自动识别</option></select>
-      <label class="hint">比赛日期 <input type="date" id="addDate"></label>
-      <input id="addOpp" placeholder="对手（可不填）" style="width:130px">
-      <button class="btn primary" id="add">添加并下载</button>
+      <select id="addType"><option value="">Type: auto-detect</option></select>
+      <label class="hint">Game date <input type="date" id="addDate"></label>
+      <input id="addOpp" placeholder="Opponent (optional)" style="width:130px">
+      <button class="btn primary" id="add">Add &amp; download</button>
     </div>
-    <details style="margin-top:8px"><summary class="hint" style="cursor:pointer">只取视频中的一段（单个链接时可以在这里填）</summary>
+    <details style="margin-top:8px"><summary class="hint" style="cursor:pointer">Take only one part of the video (for a single link)</summary>
       <div class="row" style="margin-top:6px">
-        <input id="addStart" placeholder="起点 如 12:30" style="width:120px">
-        <span class="hint">到</span>
-        <input id="addEnd" placeholder="终点 如 13:05" style="width:120px">
-        <input id="addTitle" placeholder="给这一段起个标题（可不填）" style="flex:1;min-width:180px">
+        <input id="addStart" placeholder="Start, e.g. 12:30" style="width:120px">
+        <span class="hint">to</span>
+        <input id="addEnd" placeholder="End, e.g. 13:05" style="width:120px">
+        <input id="addTitle" placeholder="Title for this part (optional)" style="flex:1;min-width:180px">
       </div>
     </details>
-    <div class="hint" style="margin-top:6px"><b id="startNote"></b> 时间可以写 83、1:23 或 1:02:03。比赛日期不填就用视频发布日期，之后可以改。只下载所选的那一段，文件按“赛季/日期”自动放好。</div>
+    <div class="hint" style="margin-top:6px"><b id="startNote"></b> Times can be written as 83, 1:23 or 1:02:03. If no game date is given, the video upload date is used (you can change it later). Only the chosen part is downloaded, and files are filed by season/date automatically.</div>
     <div id="jobs"></div>
   </div>
 
-  <div class="row" style="margin-bottom:8px"><button class="chip on" data-v="clips">视频片段</button><button class="chip" data-v="games">比赛</button><button class="chip" data-v="photos">照片<span id="pcount"></span></button></div>
+  <div class="row" style="margin-bottom:8px"><button class="chip on" data-v="clips">Clips</button><button class="chip" data-v="games">Games</button><button class="chip" data-v="photos">Photos<span id="pcount"></span></button></div>
   <div class="row" id="ranges"></div>
   <div class="row" style="margin-top:8px">
     <span id="custom" style="display:none" class="row">
@@ -131,23 +131,23 @@ td.n,th.n{text-align:right}
 
   <div class="box" id="nhlBox">
     <div class="row" style="justify-content:space-between">
-      <span><b>NHL 官方数据</b> <span class="hint" id="nhlUpd"></span></span>
-      <span class="row"><select id="nhlSeason"></select><button class="btn" id="nhlSync">同步官方数据</button></span>
+      <span><b>NHL official data</b> <span class="hint" id="nhlUpd"></span></span>
+      <span class="row"><select id="nhlSeason"></select><button class="btn" id="nhlSync">Sync official data</button></span>
     </div>
     <div id="nhlSum" style="margin-top:6px"></div>
     <div id="nhlMiss"></div>
   </div>
 
   <div class="box" id="weeksBox" style="display:none">
-    <b>按周汇总</b> <span class="hint">点一行只看那一周。汇总的是你收藏的片段，漏收的不会计入。</span>
+    <b>Weekly summary</b> <span class="hint">Click a row to see only that week. It counts the clips you have saved; anything missing is not included.</span>
     <div style="overflow:auto;margin-top:6px"><table id="weeks"></table></div>
   </div>
 
   <div class="row" style="margin:14px 0 10px">
     <span id="types" class="row"></span>
-    <input id="q" placeholder="搜索标题、说明、标签" style="flex:1;min-width:160px">
-    <select id="opp"><option value="">全部对手</option></select>
-    <select id="sort"><option value="new">日期：新到旧</option><option value="old">日期：旧到新</option></select>
+    <input id="q" placeholder="Search title, caption, tags" style="flex:1;min-width:160px">
+    <select id="opp"><option value="">All opponents</option></select>
+    <select id="sort"><option value="new">Date: newest first</option><option value="old">Date: oldest first</option></select>
   </div>
   <div class="hint" id="count" style="margin-bottom:8px"></div>
   <div class="grid" id="grid"></div>
@@ -160,7 +160,7 @@ td.n,th.n{text-align:right}
 
   <div id="viewPhotos" style="display:none">
     <div class="row" style="margin:6px 0 10px"><span id="pstatus" class="row"></span>
-      <input id="pq" placeholder="搜索帖子文字" style="flex:1;min-width:160px"></div>
+      <input id="pq" placeholder="Search post text" style="flex:1;min-width:160px"></div>
     <div class="hint" style="margin-bottom:8px" id="pinfo"></div>
     <div id="pgroups"></div>
   </div>
@@ -174,6 +174,12 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 const api = (u, o) => fetch(u, o).then(r => r.json());
 const post = (u, b) => api(u, {method: "POST", body: JSON.stringify(b)});
 let photos = [], games = [], lineData = {}, lineEdit = null, lineDraft = null, lineMode = "player", lineNotice = null, openGame = null, view = "clips", pstatus = "待确认", START = "";
+// Stored data values stay in Chinese (CSV/JSON); these map them to English for display.
+const TN = {"进球": "Goal", "助攻": "Assist", "采访": "Interview", "活动": "Event", "其他": "Other", "赛前": "Pre-game", "赛后": "Post-game", "待确认": "Pending", "选入": "Selected", "排除": "Excluded", "阵容": "Lineup", "数据表": "Stats sheet", "胜": "W", "负": "L", "加时负": "OTL", "点球负": "SOL"};
+const tn = v => TN[v] || v;
+const SRC = {"未生成": "Not generated", "手写": "Manual", "官方数据": "Official data"};
+const sn = v => SRC[v] || v;
+const en = s => String(s ?? "").replace(/第(\d+)次加时/g, "OT$1").replace(/第(\d)节/g, "P$1").replace(/点球大战/g, "SO").replace(/加时/g, "OT").replace(/多打少/g, "Power play").replace(/少打多/g, "Short-handed").replace(/进球/g, "Goal").replace(/助攻/g, "Assist");
 let TYPES = [], clips = [], nhl = {events: [], seasons: {}}, range = "week", typeSel = null, openId = null, editing = false;
 
 // ---------- 日期 ----------
@@ -191,7 +197,7 @@ function rangeBounds(){
   if(range === "custom") return [$("from").value || "0000-01-01", $("to").value || "9999-12-31"];
   return ["0000-01-01", "9999-12-31"];
 }
-const RANGES = [["week","本周"],["lastweek","上周"],["month","本月"],["season","本赛季"],["all","全部"],["custom","自定义"]];
+const RANGES = [["week","This week"],["lastweek","Last week"],["month","This month"],["season","This season"],["all","All"],["custom","Custom"]];
 
 // ---------- 过滤 ----------
 function inRangeD(d){ const [a, b] = rangeBounds(); return d >= a && d <= b; }
@@ -212,7 +218,7 @@ function render(){
   $("ranges").innerHTML = RANGES.map(([k, n]) => `<button class="chip ${range===k?"on":""}" data-r="${k}">${n}</button>`).join("");
   $("custom").style.display = range === "custom" ? "" : "none";
   document.querySelectorAll("[data-r]").forEach(b => b.onclick = () => { range = b.dataset.r; render(); });
-  $("types").innerHTML = [["", "全部类型"], ...TYPES.map(t => [t, t])].map(([k, n]) =>
+  $("types").innerHTML = [["", "All types"], ...TYPES.map(t => [t, tn(t)])].map(([k, n]) =>
     `<button class="chip ${(typeSel||"")===k?"on":""}" data-t="${k}">${n}</button>`).join("");
   document.querySelectorAll("[data-t]").forEach(b => b.onclick = () => { typeSel = b.dataset.t || null; render(); });
 
@@ -221,11 +227,11 @@ function render(){
   const cnt = t => inR.filter(c => c.type === t).length;
   const [a, b] = rangeBounds();
   $("tiles").innerHTML = `
-    <div class="tile g"><b>${sum("goals")}</b><span>进球</span></div>
-    <div class="tile a"><b>${sum("assists")}</b><span>助攻</span></div>
-    <div class="tile"><b>${sum("goals") + sum("assists")}</b><span>总得分</span></div>
-    <div class="tile i"><b>${cnt("采访")}</b><span>采访</span></div>
-    <div class="tile"><b>${inR.length}</b><span>片段数${range!=="all"&&range!=="custom"?`（${a.slice(5)} ~ ${b.slice(5)}）`:""}</span></div>`;
+    <div class="tile g"><b>${sum("goals")}</b><span>Goals</span></div>
+    <div class="tile a"><b>${sum("assists")}</b><span>Assists</span></div>
+    <div class="tile"><b>${sum("goals") + sum("assists")}</b><span>Points</span></div>
+    <div class="tile i"><b>${cnt("采访")}</b><span>Interviews</span></div>
+    <div class="tile"><b>${inR.length}</b><span>Clips${range!=="all"&&range!=="custom"?` (${a.slice(5)} ~ ${b.slice(5)})`:""}</span></div>`;
 
   // NHL 官方数据对照
   const have = new Set(clips.map(c => c.id));
@@ -233,19 +239,19 @@ function render(){
   const missing = ev.filter(e => !have.has(e.id));
   const fetchable = missing.filter(e => e.clip);
   const upd = Object.values(nhl.seasons || {}).map(s => s.updated).sort().slice(-1)[0];
-  $("nhlUpd").textContent = upd ? "上次同步：" + upd.replace("T", " ").slice(0, 16) : "";
+  $("nhlUpd").textContent = upd ? "Last synced: " + upd.replace("T", " ").slice(0, 16) : "";
   if(!(nhl.events || []).length && !upd){
-    $("nhlSum").innerHTML = `<span class="hint">还没有同步过。点右边“同步官方数据”，会读取所选赛季里每一个进球和助攻（包括谁进的球、谁助攻、第几节几分几秒），并找出官方视频片段。</span>`;
+    $("nhlSum").innerHTML = `<span class="hint">Not synced yet. Click “Sync official data” on the right to read every goal and assist in the selected season (who scored, who assisted, period and time) and find the official video clips.</span>`;
     $("nhlMiss").innerHTML = "";
   } else {
     const og = ev.filter(e => e.type === "进球").length, oa = ev.filter(e => e.type === "助攻").length;
-    $("nhlSum").innerHTML = `这个时间范围内，官方记录：<b>进球 ${og}</b> · <b>助攻 ${oa}</b>（共 ${ev.length} 次）。已存档 ${ev.length - missing.length} 个` +
-      (missing.length ? `，<b style="color:var(--goal)">还缺 ${missing.length} 个</b>` : "，<b>已全部收齐</b>") +
-      (fetchable.length ? ` <button class="btn primary" id="nhlGet" style="margin-left:6px">下载缺少的 ${fetchable.length} 个官方片段</button>` : "");
-    $("nhlMiss").innerHTML = missing.map(e => `<div class="miss"><span class="badge ${esc(e.type)}">${esc(e.type)}</span>
-      <span>${esc(e.date.slice(5))} ${e.home ? "主场" : "客场"}对 ${esc(e.opp)} · ${esc(e.moment)}</span>
-      <span class="m">进球 ${esc(e.scorer)}；助攻 ${esc(e.assists.join("、"))}${e.strength ? " · " + esc(e.strength) : ""}</span>
-      ${e.clip ? "" : `<span class="m">（官方暂时还没有视频）</span>`}</div>`).join("");
+    $("nhlSum").innerHTML = `In this date range the official record shows: <b>${og} goals</b> · <b>${oa} assists</b> (${ev.length} total). ${ev.length - missing.length} archived` +
+      (missing.length ? `; <b style="color:var(--goal)">${missing.length} missing</b>` : "; <b>all collected</b>") +
+      (fetchable.length ? ` <button class="btn primary" id="nhlGet" style="margin-left:6px">Download the ${fetchable.length} missing official clips</button>` : "");
+    $("nhlMiss").innerHTML = missing.map(e => `<div class="miss"><span class="badge ${esc(e.type)}">${esc(tn(e.type))}</span>
+      <span>${esc(e.date.slice(5))} ${e.home ? "vs" : "@"} ${esc(e.opp)} · ${esc(en(e.moment))}</span>
+      <span class="m">Goal ${esc(e.scorer)}; assists ${esc(e.assists.join(", "))}${e.strength ? " · " + esc(en(e.strength)) : ""}</span>
+      ${e.clip ? "" : `<span class="m">(no official video yet)</span>`}</div>`).join("");
     const g = $("nhlGet"); if(g) g.onclick = async () => { g.disabled = true; await post("/api/nhl/fetch", {ids: fetchable.map(e => e.id)}); poll(); };
   }
 
@@ -255,7 +261,7 @@ function render(){
     w.g += +c.goals || 0; w.a += +c.assists || 0; w.i += c.type === "采访" ? 1 : 0; w.n++; });
   const ks = Object.keys(weeks).sort().reverse();
   $("weeksBox").style.display = ks.length > 1 || range === "season" || range === "all" ? "" : "none";
-  $("weeks").innerHTML = `<tr><th>周</th><th class="n">进球</th><th class="n">助攻</th><th class="n">得分</th><th class="n">采访</th><th class="n">片段</th></tr>` +
+  $("weeks").innerHTML = `<tr><th>Week</th><th class="n">Goals</th><th class="n">Assists</th><th class="n">Points</th><th class="n">Interviews</th><th class="n">Clips</th></tr>` +
     ks.map(k => { const w = weeks[k], s = pd(k); return `<tr class="click" data-w="${k}"><td>${md(s)} – ${md(addDays(s, 6))}</td>
       <td class="n">${w.g}</td><td class="n">${w.a}</td><td class="n">${w.g + w.a}</td><td class="n">${w.i}</td><td class="n">${w.n}</td></tr>`; }).join("");
   document.querySelectorAll("[data-w]").forEach(r => r.onclick = () => { range = "custom"; $("from").value = r.dataset.w;
@@ -263,14 +269,14 @@ function render(){
 
   // 对手下拉
   const opps = [...new Set(clips.map(c => c.opponent).filter(Boolean))].sort(), cur = $("opp").value;
-  $("opp").innerHTML = `<option value="">全部对手</option>` + opps.map(o => `<option ${o===cur?"selected":""}>${esc(o)}</option>`).join("");
+  $("opp").innerHTML = `<option value="">All opponents</option>` + opps.map(o => `<option ${o===cur?"selected":""}>${esc(o)}</option>`).join("");
 
   const v = visible();
-  $("count").textContent = clips.length ? `共 ${v.length} 个片段` : "还没有片段，在上面粘贴第一个链接开始。";
+  $("count").textContent = clips.length ? `${v.length} clips` : "No clips yet. Paste your first link above to start.";
   $("grid").innerHTML = v.map(c => `<div class="clip" data-id="${esc(c.id)}">
-    <div class="thumb" style="${c.thumb ? `background-image:url('${encodeURI(c.thumb)}')` : ""}"><span class="dur">${c.seg_start !== "" && c.seg_start != null ? "截取 " : ""}${dur(c.duration)}</span></div>
+    <div class="thumb" style="${c.thumb ? `background-image:url('${encodeURI(c.thumb)}')` : ""}"><span class="dur">${c.seg_start !== "" && c.seg_start != null ? "Cut " : ""}${dur(c.duration)}</span></div>
     <div class="cbody"><div class="t">${esc(c.title)}</div>
-    <div class="meta"><span class="badge ${esc(c.type)}">${esc(c.type)}</span>${esc(c.game_date.slice(5))}${c.opponent ? " · 对 " + esc(c.opponent) : ""}</div>
+    <div class="meta"><span class="badge ${esc(c.type)}">${esc(tn(c.type))}</span>${esc(c.game_date.slice(5))}${c.opponent ? " · vs " + esc(c.opponent) : ""}</div>
     ${c.summary ? `<div class="sum">${esc(c.summary.replace(/^摘要[：:]\s*/, "").split("\n")[0])}</div>` : ""}</div></div>`).join("");
   document.querySelectorAll(".clip").forEach(el => el.onclick = () => openClip(el.dataset.id));
   renderPhotos();
@@ -301,12 +307,12 @@ function copyFromPrev(g){
   const fix = (id, key) => {
     if(!id) return null;
     const r = cur.get(id);
-    if(!r){ blanks.push(`${slotLabel(key)}：${plabel(p, id)} —— 本场没上场`); return null; }
-    if(!grpOK(key, r)){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} —— 本场登记的位置是 ${r.pos}，不在这个位置组`); return null; }
+    if(!r){ blanks.push(`${slotLabel(key)}：${plabel(p, id)} — did not play this game`); return null; }
+    if(!grpOK(key, r)){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} — listed as ${r.pos} this game, not in this position group`); return null; }
     if(key[0] === "F" && centers){
       const slotIsC = key[2] === "1", isC = centers.has(id);
-      if(slotIsC && !isC){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} —— 上一场打中锋，本场只主罚 ${r.fo} 次争球，不像在打中锋`); return null; }
-      if(!slotIsC && isC){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} —— 上一场打边锋，本场主罚了 ${r.fo} 次争球，像是改打中锋`); return null; }
+      if(slotIsC && !isC){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} — played center last game but took only ${r.fo} faceoffs this game, so probably not at center`); return null; }
+      if(!slotIsC && isC){ blanks.push(`${slotLabel(key)}：${plabel(g, id)} — played wing last game but took ${r.fo} faceoffs this game, so probably at center now`); return null; }
     }
     kept++; return id; };
   const pad = (rows, n, m) => Array.from({length: n}, (_, i) => Array.from({length: m}, (_, j) => (rows || [])[i]?.[j] ?? null));
@@ -318,19 +324,19 @@ function copyFromPrev(g){
 function noticeHTML(){
   if(!lineNotice) return "";
   const n = lineNotice;
-  return `<div class="box" style="background:var(--bg);margin:0 0 10px">已复制上一场（${esc(n.p.date.slice(5))} 对 ${esc(n.p.opp)}）的阵容分组：保留 <b>${n.kept}</b> 个位置，留空 <b>${n.blanks.length}</b> 个。
+  return `<div class="box" style="background:var(--bg);margin:0 0 10px">Copied the lineup groups from the previous game (${esc(n.p.date.slice(5))} vs ${esc(n.p.opp)}): kept <b>${n.kept}</b> slots, left <b>${n.blanks.length}</b> blank.
     ${n.blanks.length ? `<ul class="tight">${n.blanks.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
-    <div class="hint">留空的位置，以及这场新上场的球员（上一场没有的），需要你来补。判断“是不是中锋”的依据是这场的争球次数（最多的 4 名前锋、且至少 3 次）；左、右边锋无法从数据区分，保留的是上一场的左右。</div>
-    ${n.noFo ? `<div class="hint" style="color:var(--bad)">这场还没有争球数据，所以没法判断他们是不是改打了中锋，只检查了有没有上场。点页面上的“同步官方数据”可以补上。</div>` : ""}</div>`;
+    <div class="hint">Blank slots, and players new to this game, need to be filled in by you. “Is he a center” is judged by faceoff counts this game (the 4 forwards with the most faceoffs, at least 3); left and right wing cannot be told apart from the data, so last game’s sides are kept.</div>
+    ${n.noFo ? `<div class="hint" style="color:var(--bad)">No faceoff data for this game yet, so I could not tell whether anyone moved to center; I only checked who played. Click “Sync official data” to fill it in.</div>` : ""}</div>`;
 }
 
 
 // ---------- 卡尔松和谁一起打球 ----------
 const mmss = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 function iceHTML(g){
-  const who = g.player ? g.player.name : "球员", ice = g.ice, title = `<div class="gsec">${esc(who)} 和谁一起打球</div>`;
-  if(ice === undefined) return title + `<div class="box hint">这场还没有上冰组合数据。点页面上的“同步官方数据”读取（用的是官方逐次上冰记录，需要比赛已经结束）。</div>`;
-  if(ice === null || !g.player) return title + `<div class="box hint">本场没有出场记录。</div>`;
+  const who = g.player ? g.player.name : "Player", ice = g.ice, title = `<div class="gsec">Who ${esc(who)} played with</div>`;
+  if(ice === undefined) return title + `<div class="box hint">No on-ice combination data for this game yet. Click “Sync official data” to read it (uses the official shift records; the game must be over).</div>`;
+  if(ice === null || !g.player) return title + `<div class="box hint">Did not play this game.</div>`;
   const T = ice.total || 1, pct = s => Math.round(s / T * 100) + "%", nm = id => esc(plabel(g, id)), pos = id => (dressedMap(g).get(id) || {}).pos || "";
   const look = a => new Map(a || []);
   const dAll = ice.d.all.slice(0, 5), d5 = look(ice.d["5v5"]), dPk = look(ice.d.pk), dPp = look(ice.d.pp);
@@ -338,23 +344,23 @@ function iceHTML(g){
   const cell = (m, k) => m.has(k) ? mmss(m.get(k)) : "–";
   const centerOf = ids => ids.reduce((a, b) => ((dressedMap(g).get(b) || {}).fo || 0) > ((dressedMap(g).get(a) || {}).fo || 0) ? b : a);
   return title + `<div class="box" style="overflow:auto">
-    <div>总上冰 <b>${mmss(ice.total)}</b>：5 对 5 ${mmss(ice.sit["5v5"])} · 多打少 ${mmss(ice.sit.pp)} · 少打多 ${mmss(ice.sit.pk)}${ice.sit.other ? " · 其他 " + mmss(ice.sit.other) : ""}</div>
-    <div class="hint" style="margin-top:8px">后卫搭档</div>
-    <table class="gt"><tr><th>后卫</th><th>全部</th><th>占比</th><th>5 对 5</th><th>多打少</th><th>少打多</th></tr>${dAll.map(([id, s]) => `<tr><td>${nm(id)}</td><td><b>${mmss(s)}</b></td><td>${pct(s)}</td><td>${cell(d5, id)}</td><td>${cell(dPp, id)}</td><td>${cell(dPk, id)}</td></tr>`).join("") || `<tr><td colspan="6" class="hint">没有数据</td></tr>`}</table>
-    <div class="hint" style="margin-top:10px">同时在冰上的前锋</div>
-    <table class="gt"><tr><th>前锋</th><th>全部</th><th>占比</th><th>5 对 5</th><th>多打少</th><th>少打多</th></tr>${fAll.map(([id, s]) => `<tr><td>${nm(id)}<span class="tag2">${esc(pos(id))}</span></td><td><b>${mmss(s)}</b></td><td>${pct(s)}</td><td>${cell(f5, id)}</td><td>${cell(fPp, id)}</td><td>${cell(fPk, id)}</td></tr>`).join("") || `<tr><td colspan="6" class="hint">没有数据</td></tr>`}</table>
-    <div class="hint" style="margin-top:10px">5 对 5 时，他在冰上最常见的前锋三人组</div>
-    <table class="gt l"><tr><th>时间</th><th>前锋三人组（争球最多的标“C”）</th></tr>${(ice.trios || []).slice(0, 4).map(([ids, s]) => { const c = centerOf(ids);
-      return `<tr><td>${mmss(s)}</td><td>${ids.map(i => esc((dressedMap(g).get(i) || {}).name || i) + (i === c ? `<span class="tag2 me">C</span>` : "")).join("、")}</td></tr>`; }).join("") || `<tr><td colspan="2" class="hint">没有数据</td></tr>`}</table>
-    <div class="hint" style="margin-top:8px">按官方逐次上冰记录，逐秒统计谁和他同时在冰上（不含门将）。5 对 5、多打少、少打多按冰上双方滑冰人数区分，比赛中撤门将换人时可能不准。他不在的时间不算；样本只有这一场，搭档会随比赛变化。</div></div>`;
+    <div>Total ice time <b>${mmss(ice.total)}</b>: 5v5 ${mmss(ice.sit["5v5"])} · PP ${mmss(ice.sit.pp)} · SH ${mmss(ice.sit.pk)}${ice.sit.other ? " · other " + mmss(ice.sit.other) : ""}</div>
+    <div class="hint" style="margin-top:8px">Defense partners</div>
+    <table class="gt"><tr><th>Defense</th><th>All</th><th>Share</th><th>5v5</th><th>PP</th><th>SH</th></tr>${dAll.map(([id, s]) => `<tr><td>${nm(id)}</td><td><b>${mmss(s)}</b></td><td>${pct(s)}</td><td>${cell(d5, id)}</td><td>${cell(dPp, id)}</td><td>${cell(dPk, id)}</td></tr>`).join("") || `<tr><td colspan="6" class="hint">No data</td></tr>`}</table>
+    <div class="hint" style="margin-top:10px">Forwards on ice together</div>
+    <table class="gt"><tr><th>Forward</th><th>All</th><th>Share</th><th>5v5</th><th>PP</th><th>SH</th></tr>${fAll.map(([id, s]) => `<tr><td>${nm(id)}<span class="tag2">${esc(pos(id))}</span></td><td><b>${mmss(s)}</b></td><td>${pct(s)}</td><td>${cell(f5, id)}</td><td>${cell(fPp, id)}</td><td>${cell(fPk, id)}</td></tr>`).join("") || `<tr><td colspan="6" class="hint">No data</td></tr>`}</table>
+    <div class="hint" style="margin-top:10px">Most common forward trios on ice with him at 5v5</div>
+    <table class="gt l"><tr><th>Time</th><th>Forward trio (most faceoffs marked “C”)</th></tr>${(ice.trios || []).slice(0, 4).map(([ids, s]) => { const c = centerOf(ids);
+      return `<tr><td>${mmss(s)}</td><td>${ids.map(i => esc((dressedMap(g).get(i) || {}).name || i) + (i === c ? `<span class="tag2 me">C</span>` : "")).join(", ")}</td></tr>`; }).join("") || `<tr><td colspan="2" class="hint">No data</td></tr>`}</table>
+    <div class="hint" style="margin-top:8px">Counted second by second from the official shift records: who was on the ice with him (goalies excluded). 5v5, PP and SH are decided by the number of skaters on each side, which can be off when a goalie is pulled. Time when he is off the ice is not counted; the sample is this one game, so pairings change from game to game.</div></div>`;
 }
 
 // ---------- 阵容分组(手动填写) ----------
-const FL = ["左边锋", "中锋", "右边锋"];
+const FL = ["Left wing", "Center", "Right wing"];
 const dressedMap = g => { const m = new Map(); GRP.forEach(([k]) => ((g.lineup || {})[k] || []).forEach(r => m.set(r.id, r))); return m; };
 const plabel = (g, id) => { const r = id ? dressedMap(g).get(id) : null; return r ? `#${r.num} ${r.name}` : ""; };
 const slotLabel = key => { const t = key[0], i = +key[1], j = +key[2];
-  return t === "F" ? `第${i + 1}线${FL[j]}` : t === "D" ? `第${i + 1}对后卫${j + 1}` : (i === 0 ? "首发门将" : "替补门将"); };
+  return t === "F" ? `Line ${i + 1} ${FL[j]}` : t === "D" ? `Pair ${i + 1} D${j + 1}` : (i === 0 ? "Starting goalie" : "Backup goalie"); };
 function slotsOf(L){   // key -> 球员 id
   const m = new Map(); if(!L) return m;
   (L.F || []).forEach((row, i) => row.forEach((id, j) => m.set(`F${i}${j}`, id)));
@@ -391,47 +397,47 @@ function placePlayer(d, pid, key){
   if(key){ const other = slotGet(d, key); slotSet(d, key, pid); if(other && old) slotSet(d, old, other); }
 }
 function slotChoices(grp){
-  if(grp === "forwards") return [0, 1, 2, 3].flatMap(i => [0, 1, 2].map(j => [`F.${i}.${j}`, `第${i + 1}线 ${FL[j]}`]));
-  if(grp === "defense") return [0, 1, 2].flatMap(i => [0, 1].map(j => [`D.${i}.${j}`, `第${i + 1}对 后卫${j + 1}`]));
-  return [["G.0", "首发门将"], ["G.1", "替补门将"]];
+  if(grp === "forwards") return [0, 1, 2, 3].flatMap(i => [0, 1, 2].map(j => [`F.${i}.${j}`, `Line ${i + 1} ${FL[j]}`]));
+  if(grp === "defense") return [0, 1, 2].flatMap(i => [0, 1].map(j => [`D.${i}.${j}`, `Pair ${i + 1} D${j + 1}`]));
+  return [["G.0", "Starting goalie"], ["G.1", "Backup goalie"]];
 }
 function playerModeHTML(g, d){
   const rows = GRP.map(([k, name]) => { const arr = [...((g.lineup || {})[k] || [])].sort((a, b) => k === "goalies" ? (toiSec(b.toi) || 0) - (toiSec(a.toi) || 0) : a.num - b.num);
-    return `<tr><th colspan="6" style="background:var(--bg)">${name}（${arr.length} 人）</th></tr>` + arr.map(r => { const cur = slotKeyOf(d, r.id);
-      return `<tr><td>#${esc(r.num ?? "")} ${esc(r.name)}</td><td>${esc(r.pos || "")}</td><td>${esc(r.toi || "")}</td><td>${k === "goalies" ? `扑救 ${r.sv ?? ""}` : `${r.g ?? 0} 球 ${r.a ?? 0} 助`}</td>
-        <td><select data-pl="${r.id}" data-grp="${k}"><option value="">（未分配）</option>${slotChoices(k).map(([key, lab]) => { const occ = slotGet(d, key);
-          return `<option value="${key}" ${key === cur ? "selected" : ""}>${lab}${occ && key !== cur ? "（现在是 " + esc(plabel(g, occ)) + "，会互换）" : ""}</option>`; }).join("")}</select></td></tr>`; }).join(""); }).join("");
+    return `<tr><th colspan="6" style="background:var(--bg)">${name} (${arr.length})</th></tr>` + arr.map(r => { const cur = slotKeyOf(d, r.id);
+      return `<tr><td>#${esc(r.num ?? "")} ${esc(r.name)}</td><td>${esc(r.pos || "")}</td><td>${esc(r.toi || "")}</td><td>${k === "goalies" ? `${r.sv ?? ""} saves` : `${r.g ?? 0} G ${r.a ?? 0} A`}</td>
+        <td><select data-pl="${r.id}" data-grp="${k}"><option value="">(unassigned)</option>${slotChoices(k).map(([key, lab]) => { const occ = slotGet(d, key);
+          return `<option value="${key}" ${key === cur ? "selected" : ""}>${lab}${occ && key !== cur ? " (currently " + esc(plabel(g, occ)) + ", will swap)" : ""}</option>`; }).join("")}</select></td></tr>`; }).join(""); }).join("");
   const left = [...dressedMap(g).keys()].filter(id => !slotKeyOf(d, id)).length;
-  return `<table class="gt l"><tr><th>球员（来自 NHL 的出场名单）</th><th>位置</th><th>上场</th><th>本场</th><th>线路</th></tr>${rows}</table>
-    <div class="hint" style="margin-top:6px">${left ? `还有 ${left} 人没分配位置。` : "所有上场球员都已分配。"}选一个已经有人的位置，两个人会自动互换。</div>`;
+  return `<table class="gt l"><tr><th>Player (NHL roster)</th><th>Pos</th><th>TOI</th><th>This game</th><th>Line</th></tr>${rows}</table>
+    <div class="hint" style="margin-top:6px">${left ? `${left} player(s) still unassigned.` : "All players who dressed are assigned."} Choosing a slot that is already taken swaps the two players.</div>`;
 }
 
 function linesHTML(g){
   const gid = String(g.id), L = lineData[gid], editing = lineEdit === gid, pics = photos.filter(p => String(p.game_id) === gid && p.kind === "阵容" && p.status !== "排除");
-  const thumbs = pics.length ? `<div class="pthumbs" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))">${pics.map(p => `<div class="pth"><img src="${encodeURI(p.file)}" data-pid="${esc(p.id)}" alt=""></div>`).join("")}</div><div class="hint">上面是这场的阵容图，点开放大，对着它填。</div>` : "";
-  const opts = (arr, cur) => `<option value="">（空）</option>` + arr.map(r => `<option value="${r.id}" ${r.id === cur ? "selected" : ""}>#${esc(r.num ?? "")} ${esc(r.name)}${r.pos ? "（" + esc(r.pos) + "）" : ""}</option>`).join("");
+  const thumbs = pics.length ? `<div class="pthumbs" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))">${pics.map(p => `<div class="pth"><img src="${encodeURI(p.file)}" data-pid="${esc(p.id)}" alt=""></div>`).join("")}</div><div class="hint">Lineup images for this game are above; click to enlarge and fill in from them.</div>` : "";
+  const opts = (arr, cur) => `<option value="">(empty)</option>` + arr.map(r => `<option value="${r.id}" ${r.id === cur ? "selected" : ""}>#${esc(r.num ?? "")} ${esc(r.name)}${r.pos ? " (" + esc(r.pos) + ")" : ""}</option>`).join("");
   let body;
   if(editing){
     const d = lineDraft, fw = [...g.lineup.forwards].sort((a, b) => a.num - b.num), df = [...g.lineup.defense].sort((a, b) => a.num - b.num), gk = g.lineup.goalies;
-    const slotUI = `<table class="gt l"><tr><th></th>${FL.map(x => `<th>${x}</th>`).join("")}</tr>${d.F.map((row, i) => `<tr><td>第${i + 1}线</td>${row.map((id, j) => `<td><select data-slot="F.${i}.${j}">${opts(fw, id)}</select></td>`).join("")}</tr>`).join("")}</table>
-      <table class="gt l" style="margin-top:8px"><tr><th></th><th>后卫 1</th><th>后卫 2</th></tr>${d.D.map((row, i) => `<tr><td>第${i + 1}对</td>${row.map((id, j) => `<td><select data-slot="D.${i}.${j}">${opts(df, id)}</select></td>`).join("")}</tr>`).join("")}</table>
-      <table class="gt l" style="margin-top:8px"><tr><th>门将</th><th>首发</th><th>替补</th></tr><tr><td></td>${d.G.map((id, j) => `<td><select data-slot="G.${j}">${opts(gk, id)}</select></td>`).join("")}</tr></table>`;
+    const slotUI = `<table class="gt l"><tr><th></th>${FL.map(x => `<th>${x}</th>`).join("")}</tr>${d.F.map((row, i) => `<tr><td>Line ${i + 1}</td>${row.map((id, j) => `<td><select data-slot="F.${i}.${j}">${opts(fw, id)}</select></td>`).join("")}</tr>`).join("")}</table>
+      <table class="gt l" style="margin-top:8px"><tr><th></th><th>D1</th><th>D2</th></tr>${d.D.map((row, i) => `<tr><td>Pair ${i + 1}</td>${row.map((id, j) => `<td><select data-slot="D.${i}.${j}">${opts(df, id)}</select></td>`).join("")}</tr>`).join("")}</table>
+      <table class="gt l" style="margin-top:8px"><tr><th>Goalie</th><th>Starter</th><th>Backup</th></tr><tr><td></td>${d.G.map((id, j) => `<td><select data-slot="G.${j}">${opts(gk, id)}</select></td>`).join("")}</tr></table>`;
     const prevHas = (() => { const p = prevOf(g); return p && lineData[String(p.id)]; })();
-    body = `${noticeHTML()}<div class="row" style="margin-bottom:8px"><button class="chip ${lineMode === "player" ? "on" : ""}" data-lm="player">按球员选（给每个球员选线路）</button><button class="chip ${lineMode === "slot" ? "on" : ""}" data-lm="slot">按位置选（给每个位置选球员）</button>
-      ${prevHas ? `<button class="btn" id="lCopy">复制上一场的阵容</button>` : ""}<button class="btn" id="lGuess">按位置和上场时间预填（只是猜测）</button></div><div class="hint" style="margin-bottom:8px">名单来自 NHL 官方数据（这场实际上场的人）。预填只是起点，请对照阵容图核对再改。</div>
+    body = `${noticeHTML()}<div class="row" style="margin-bottom:8px"><button class="chip ${lineMode === "player" ? "on" : ""}" data-lm="player">By player (pick a line for each player)</button><button class="chip ${lineMode === "slot" ? "on" : ""}" data-lm="slot">By slot (pick a player for each slot)</button>
+      ${prevHas ? `<button class="btn" id="lCopy">Copy previous lineup</button>` : ""}<button class="btn" id="lGuess">Prefill from position and TOI (a guess)</button></div><div class="hint" style="margin-bottom:8px">The list comes from official NHL data (who actually played). Prefill is only a starting point; check it against the lineup image.</div>
       ${lineMode === "player" ? playerModeHTML(g, d) : slotUI}
-      <div class="row" style="margin-top:10px"><button class="btn primary" id="lSave">保存</button><button class="btn" id="lCancel">取消</button><span class="hint" id="lMsg"></span></div>`;
+      <div class="row" style="margin-top:10px"><button class="btn primary" id="lSave">Save</button><button class="btn" id="lCancel">Cancel</button><span class="hint" id="lMsg"></span></div>`;
   } else if(L){
     const nm = id => id ? esc(plabel(g, id)) : `<span class="hint">—</span>`;
-    body = `<table class="gt l"><tr><th></th>${FL.map(x => `<th>${x}</th>`).join("")}</tr>${(L.F || []).map((row, i) => `<tr><td>第${i + 1}线</td>${row.map(id => `<td>${nm(id)}</td>`).join("")}</tr>`).join("")}</table>
-      <table class="gt l" style="margin-top:8px"><tr><th></th><th>后卫 1</th><th>后卫 2</th></tr>${(L.D || []).map((row, i) => `<tr><td>第${i + 1}对</td>${row.map(id => `<td>${nm(id)}</td>`).join("")}</tr>`).join("")}</table>
-      <div style="margin-top:8px">门将：首发 ${nm((L.G || [])[0])}　替补 ${nm((L.G || [])[1])}</div>
-      <div class="row" style="margin-top:8px"><button class="btn" id="lEdit">编辑</button><button class="btn danger" id="lClear">清除</button><span class="hint">手动填写于 ${esc((L.updated || "").replace("T", " ").slice(0, 16))}</span></div>`;
+    body = `<table class="gt l"><tr><th></th>${FL.map(x => `<th>${x}</th>`).join("")}</tr>${(L.F || []).map((row, i) => `<tr><td>Line ${i + 1}</td>${row.map(id => `<td>${nm(id)}</td>`).join("")}</tr>`).join("")}</table>
+      <table class="gt l" style="margin-top:8px"><tr><th></th><th>D1</th><th>D2</th></tr>${(L.D || []).map((row, i) => `<tr><td>Pair ${i + 1}</td>${row.map(id => `<td>${nm(id)}</td>`).join("")}</tr>`).join("")}</table>
+      <div style="margin-top:8px">Goalies: starter ${nm((L.G || [])[0])} · backup ${nm((L.G || [])[1])}</div>
+      <div class="row" style="margin-top:8px"><button class="btn" id="lEdit">Edit</button><button class="btn danger" id="lClear">Clear</button><span class="hint">Entered manually at ${esc((L.updated || "").replace("T", " ").slice(0, 16))}</span></div>`;
   } else {
-    body = `<div class="hint">官方数据只知道谁上场了，不知道谁在哪条线，所以需要你手动填（球队每场会发一张阵容图，可以对着它填）。</div>
-      <div style="margin-top:8px"><button class="btn primary" id="lEdit">填写阵容分组</button></div>`;
+    body = `<div class="hint">Official data only says who played, not which line they were on, so you fill it in by hand (the team posts a lineup image each game that you can copy from).</div>
+      <div style="margin-top:8px"><button class="btn primary" id="lEdit">Set lineup groups</button></div>`;
   }
-  return `<div class="gsec">阵容分组（线）<span class="tag2">手动填写</span></div><div class="box" style="overflow:auto">${thumbs}${body}</div>`;
+  return `<div class="gsec">Lineup groups (lines)<span class="tag2">Manual</span></div><div class="box" style="overflow:auto">${thumbs}${body}</div>`;
 }
 function wireLines(g){
   const gid = String(g.id), q = id => document.querySelector("#gameDetail #" + id);
@@ -440,10 +446,10 @@ function wireLines(g){
     else { const c = copyFromPrev(g);   // 这场还没填过: 有上一场的就自动复制过来
       if(c){ lineDraft = c.draft; lineNotice = c.notice; } else lineDraft = {F: [[null, null, null], [null, null, null], [null, null, null], [null, null, null]], D: [[null, null], [null, null], [null, null]], G: [null, null]}; }
     renderGameDetail(); };
-  const clr = q("lClear"); if(clr) clr.onclick = async () => { if(!confirm("清除这场比赛的阵容分组？")) return; await post("/api/lines", {game_id: gid, lines: null}); await load(); };
+  const clr = q("lClear"); if(clr) clr.onclick = async () => { if(!confirm("Clear the lineup groups for this game?")) return; await post("/api/lines", {game_id: gid, lines: null}); await load(); };
   const can = q("lCancel"); if(can) can.onclick = () => { lineEdit = null; lineDraft = null; lineNotice = null; renderGameDetail(); };
   const gs = q("lGuess"); if(gs) gs.onclick = () => { lineDraft = guessLines(g); lineNotice = null; renderGameDetail(); };
-  const cp = q("lCopy"); if(cp) cp.onclick = () => { if(!confirm("用上一场的阵容分组覆盖你现在填的内容？")) return; const c = copyFromPrev(g); if(c){ lineDraft = c.draft; lineNotice = c.notice; renderGameDetail(); } };
+  const cp = q("lCopy"); if(cp) cp.onclick = () => { if(!confirm("Overwrite what you have entered with the previous game’s lineup groups?")) return; const c = copyFromPrev(g); if(c){ lineDraft = c.draft; lineNotice = c.notice; renderGameDetail(); } };
   document.querySelectorAll("#gameDetail select[data-slot]").forEach(sel => sel.onchange = () => {
     const [t, i, j] = sel.dataset.slot.split("."), v = sel.value ? +sel.value : null, d = lineDraft;
     if(v){ // 同一个人只能在一个位置: 从别处移走
@@ -457,19 +463,19 @@ function wireLines(g){
 }
 function lineChangesHTML(g, p){
   const cg = lineData[String(g.id)], pg = lineData[String(p.id)];
-  if(!cg || !pg) return `<div style="margin-top:8px" class="hint">${!cg && !pg ? "两场都还没填阵容分组" : !cg ? "这一场还没填阵容分组" : "上一场还没填阵容分组"}，填好后这里会显示线路层面的变化（谁换了线、哪个位置换了人）。</div>`;
+  if(!cg || !pg) return `<div style="margin-top:8px" class="hint">${!cg && !pg ? "Neither game has lineup groups yet" : !cg ? "This game has no lineup groups yet" : "The previous game has no lineup groups yet"}. Once filled in, line-level changes (who changed lines, which slots changed) will show here.</div>`;
   const cs = slotsOf(cg), ps = slotsOf(pg), changes = [];
   new Set([...cs.keys(), ...ps.keys()]).forEach(k => { const a = ps.get(k) ?? null, b = cs.get(k) ?? null;
-    if(a !== b) changes.push(`<li>${slotLabel(k)}：${a ? esc(plabel(p, a)) : "（空）"}（上一场） → ${b ? esc(plabel(g, b)) : "（空）"}（本场）</li>`); });
+    if(a !== b) changes.push(`<li>${slotLabel(k)}: ${a ? esc(plabel(p, a)) : "(empty)"} (previous) → ${b ? esc(plabel(g, b)) : "(empty)"} (this game)</li>`); });
   const mv = [], pk = new Map([...ps].filter(([, v]) => v).map(([k, v]) => [v, k]));
   cs.forEach((id, k) => { if(id && pk.has(id) && pk.get(id) !== k) mv.push(`<li>${esc(plabel(g, id))}：${slotLabel(pk.get(id))} → ${slotLabel(k)}</li>`); });
-  return `<div style="margin-top:10px;padding-top:8px;border-top:1px dashed var(--line)"><b>线路层面的变化</b> <span class="hint">（根据你手动填的阵容分组）</span>
-    ${changes.length ? `<ul class="tight">${changes.join("")}</ul>` : `<div>阵容分组和上一场完全一样。</div>`}
-    ${mv.length ? `<div style="margin-top:6px"><b>换了位置的球员</b><ul class="tight">${mv.join("")}</ul></div>` : ""}</div>`;
+  return `<div style="margin-top:10px;padding-top:8px;border-top:1px dashed var(--line)"><b>Line changes</b> <span class="hint">(based on the lineup groups you entered)</span>
+    ${changes.length ? `<ul class="tight">${changes.join("")}</ul>` : `<div>Lineup groups are identical to the previous game.</div>`}
+    ${mv.length ? `<div style="margin-top:6px"><b>Players who changed slots</b><ul class="tight">${mv.join("")}</ul></div>` : ""}</div>`;
 }
 
 // ---------- 阵容变动: 和存档里的上一场比较 ----------
-const GRP = [["forwards", "前锋"], ["defense", "后卫"], ["goalies", "门将"]];
+const GRP = [["forwards", "Forwards"], ["defense", "Defense"], ["goalies", "Goalies"]];
 const toiSec = t => { const m = /^(\d+):(\d+)$/.exec(t || ""); return m ? (+m[1]) * 60 + (+m[2]) : null; };
 function prevOf(g){
   const asc = [...games].sort((a, b) => a.date.localeCompare(b.date) || String(a.id).localeCompare(String(b.id)));
@@ -480,8 +486,8 @@ function rosterDiff(g){
   const p = prevOf(g); if(!p) return null;
   const mk = x => { const m = new Map(); GRP.forEach(([k, n]) => ((x.lineup || {})[k] || []).forEach(r => m.set(r.id, {...r, grp: k, grpName: n}))); return m; };
   const cur = mk(g), prev = mk(p), scrNow = new Set(g.scratches || []), scrPrev = new Set(p.scratches || []);
-  const ins = [...cur.values()].filter(r => !prev.has(r.id)).map(r => ({...r, why: scrPrev.has(r.name) ? "上一场是看台球员" : "上一场不在出场名单里"}));
-  const outs = [...prev.values()].filter(r => !cur.has(r.id)).map(r => ({...r, why: scrNow.has(r.name) ? "本场是看台球员" : "本场不在名单里（官方数据没写原因，可能是伤病、下放或交易）"}));
+  const ins = [...cur.values()].filter(r => !prev.has(r.id)).map(r => ({...r, why: scrPrev.has(r.name) ? "Scratched last game" : "Not on last game’s roster"}));
+  const outs = [...prev.values()].filter(r => !cur.has(r.id)).map(r => ({...r, why: scrNow.has(r.name) ? "Scratched this game" : "Not on this game’s roster (official data gives no reason: injury, demotion or trade)"}));
   // 对位: 同一组(前锋/后卫/门将)里先配同位置的, 再配剩下的。只是“位置上的对应”, 不代表真的上了同一条线
   const pairs = [], used = new Set();
   [true, false].forEach(strict => ins.forEach(i => { if(i.paired) return;
@@ -495,27 +501,27 @@ function rosterDiff(g){
 const pl = r => `#${esc(r.num ?? "")} ${esc(r.name)}（${esc(r.pos || r.grpName)}）`;
 function rosterHTML(g){
   const d = rosterDiff(g);
-  if(!d) return `<div class="gsec">阵容变动</div><div class="box hint">存档里没有这场之前的比赛（上一场早于起始日期，没有收录），所以没法比较。</div>`;
+  if(!d) return `<div class="gsec">Lineup changes</div><div class="box hint">The archive has no earlier game (the previous game is before the start date and was not collected), so there is nothing to compare.</div>`;
   const row = (title, arr, f) => arr.length ? `<div style="margin-top:8px"><b>${title}（${arr.length}）</b><ul class="tight">${arr.map(f).join("")}</ul></div>` : "";
-  return `<div class="gsec">与上一场相比的人员变动 <span class="hint" style="font-weight:400">（上一场：${esc(d.p.date.slice(5))} 对 ${esc(d.p.opp)}）</span></div>
-    <div class="box">${d.same ? `<b>出场名单和上一场完全一样。</b>` : ""}
-      ${row("新上场", d.ins, r => `<li>${pl(r)} <span class="tag2 g">${esc(r.why)}</span></li>`)}
-      ${row("本场没上场", d.outs, r => `<li>${pl(r)} <span class="tag2">${esc(r.why)}</span></li>`)}
-      ${d.pairs.length ? `<div style="margin-top:8px"><b>位置上的对应</b> <span class="hint">（同位置的新上场球员对应没上场的球员，不代表一定上了同一条线）</span><ul class="tight">${d.pairs.map(([i, o]) => `<li>${pl(i)} ← ${pl(o)}</li>`).join("")}</ul></div>` : ""}
-      ${d.goalies.length > 1 ? `<div style="margin-top:8px"><b>本场两位门将都上场了</b>（可能是中途换人，官方数据只给了各自的上场时间，没有先后顺序）：${d.goalies.map(r => `${esc(r.name)} ${esc(r.toi)}`).join("、")}</div>` : ""}
-      ${(d.goalies[0] && d.gPrev[0] && d.goalies[0].id !== d.gPrev[0].id) ? `<div style="margin-top:8px"><b>首发门将变了</b>：上一场 ${esc(d.gPrev[0].name)}，本场 ${esc(d.goalies[0].name)}</div>` : ""}
-      ${d.short.length ? `<div style="margin-top:8px"><b>上场时间很短（不到 5 分钟）</b> <span class="hint">仅供参考，可能是提前离场、被罚或战术安排，官方数据没写原因</span><ul class="tight">${d.short.map(r => `<li>${pl(r)} · ${esc(r.toi)}</li>`).join("")}</ul></div>` : ""}
-      ${(g.scratches || []).length ? `<div style="margin-top:8px" class="hint">本场看台名单：${g.scratches.map(esc).join("、")}</div>` : ""}
+  return `<div class="gsec">Changes vs. previous game <span class="hint" style="font-weight:400">(previous: ${esc(d.p.date.slice(5))} vs ${esc(d.p.opp)})</span></div>
+    <div class="box">${d.same ? `<b>The roster is identical to the previous game.</b>` : ""}
+      ${row("New in lineup", d.ins, r => `<li>${pl(r)} <span class="tag2 g">${esc(r.why)}</span></li>`)}
+      ${row("Out of lineup", d.outs, r => `<li>${pl(r)} <span class="tag2">${esc(r.why)}</span></li>`)}
+      ${d.pairs.length ? `<div style="margin-top:8px"><b>Position matches</b> <span class="hint">(a new player is matched to a missing player at the same position; this does not mean they played the same line)</span><ul class="tight">${d.pairs.map(([i, o]) => `<li>${pl(i)} ← ${pl(o)}</li>`).join("")}</ul></div>` : ""}
+      ${d.goalies.length > 1 ? `<div style="margin-top:8px"><b>Both goalies played</b> (probably a mid-game change; official data gives each one’s TOI but not the order): ${d.goalies.map(r => `${esc(r.name)} ${esc(r.toi)}`).join(", ")}</div>` : ""}
+      ${(d.goalies[0] && d.gPrev[0] && d.goalies[0].id !== d.gPrev[0].id) ? `<div style="margin-top:8px"><b>Starting goalie changed</b>: previous ${esc(d.gPrev[0].name)}, this game ${esc(d.goalies[0].name)}</div>` : ""}
+      ${d.short.length ? `<div style="margin-top:8px"><b>Very short TOI (under 5 minutes)</b> <span class="hint">For reference only: could be an early exit, penalty or tactics; official data gives no reason</span><ul class="tight">${d.short.map(r => `<li>${pl(r)} · ${esc(r.toi)}</li>`).join("")}</ul></div>` : ""}
+      ${(g.scratches || []).length ? `<div style="margin-top:8px" class="hint">Scratches this game: ${g.scratches.map(esc).join(", ")}</div>` : ""}
       ${lineChangesHTML(g, d.p)}
     </div>`;
 }
 
 // ---------- 比赛 ----------
 const OUTC = {"胜": "var(--event)", "负": "var(--bad)", "加时负": "var(--goal)", "点球负": "var(--goal)"};
-const SCAT = [["sog", "射门"], ["hits", "冲撞"], ["blockedShots", "封堵"], ["giveaways", "失误"], ["takeaways", "抢断"], ["pim", "罚时（分钟）"],
-  ["powerPlay", "多打少（进球/机会）"], ["faceoffWinningPctg", "发球胜率"]];
+const SCAT = [["sog", "Shots"], ["hits", "Hits"], ["blockedShots", "Blocks"], ["giveaways", "Giveaways"], ["takeaways", "Takeaways"], ["pim", "PIM (minutes)"],
+  ["powerPlay", "Power play (goals/chances)"], ["faceoffWinningPctg", "Faceoff win %"]];
 const fv = (k, v) => k === "faceoffWinningPctg" ? (Math.round(v * 1000) / 10) + "%" : v;
-const gLabel = g => `${g.date.slice(5)} ${g.home ? "主场" : "客场"}对 ${g.opp}`;
+const gLabel = g => `${g.date.slice(5)} ${g.home ? "home" : "away"} vs ${g.opp}`;
 function gameItems(g){
   const gid = String(g.id);
   return {cs: clips.filter(c => String(c.game_id) === gid), ps: photos.filter(p => String(p.game_id) === gid && p.status !== "排除"),
@@ -523,7 +529,7 @@ function gameItems(g){
 }
 function clipHTML(c){
   return `<div class="clip" data-id="${esc(c.id)}"><div class="thumb" style="${c.thumb ? `background-image:url('${encodeURI(c.thumb)}')` : ""}"><span class="dur">${dur(c.duration)}</span></div>
-    <div class="cbody"><div class="t">${esc(c.title)}</div><div class="meta"><span class="badge ${esc(c.type)}">${esc(c.type)}</span>${esc(c.moment || "")}</div>
+    <div class="cbody"><div class="t">${esc(c.title)}</div><div class="meta"><span class="badge ${esc(c.type)}">${esc(tn(c.type))}</span>${esc(en(c.moment || ""))}</div>
     ${c.summary ? `<div class="sum">${esc(c.summary.replace(/^摘要[：:]\s*/, "").split("\n")[0])}</div>` : ""}</div></div>`;
 }
 function renderGames(){
@@ -531,15 +537,15 @@ function renderGames(){
   if(openGame && games.find(g => String(g.id) === String(openGame))){ $("gameList").style.display = "none"; $("gameDetail").style.display = ""; return renderGameDetail(); }
   openGame = null; $("gameDetail").style.display = "none"; $("gameList").style.display = "";
   const list = games.filter(g => inRangeD(g.date));
-  $("gameList").innerHTML = `<div class="row" style="justify-content:space-between;margin:6px 0 10px"><span class="hint">${games.length ? `共 ${list.length} 场（按上面的时间范围筛选）。点一场进去看详情。` : ""}</span>
-    <button class="btn" id="gSync">同步官方数据</button></div>` + (!games.length
-    ? `<div class="box hint">还没有比赛数据。点右上角“同步官方数据”，会读取本赛季已结束的比赛：比分、全队数据对比、出场名单、进球时间线，并把你已有的视频、采访、照片按日期归到对应的比赛里。</div>` : "") +
+  $("gameList").innerHTML = `<div class="row" style="justify-content:space-between;margin:6px 0 10px"><span class="hint">${games.length ? `${list.length} games (filtered by the date range above). Click a game for details.` : ""}</span>
+    <button class="btn" id="gSync">Sync official data</button></div>` + (!games.length
+    ? `<div class="box hint">No game data yet. Click “Sync official data” at the top right to read this season’s finished games: scores, team stats, rosters and the scoring timeline, and to file your existing clips, interviews and photos under the matching game by date.</div>` : "") +
     list.map(g => { const it = gameItems(g), m = g.player, hl = it.cs.filter(c => c.type === "进球" || c.type === "助攻").length, iv = it.cs.filter(c => c.type === "采访").length;
-      return `<div class="box gcard" data-g="${esc(g.id)}"><div class="row" style="justify-content:space-between"><span><b>${esc(g.date.slice(5))}</b> ${g.home ? "主场" : "客场"}对 <b>${esc(g.opp)}</b></span>
-        <span><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(g.outcome)}</span></span></div>
-        <div class="hint" style="margin-top:4px">${m ? `Karlsson：进球 ${m.g} · 助攻 ${m.a} · 得分 ${m.pts} · 冲撞 ${m.hits} · 射门 ${m.sog} · ${esc(m.toi)}` : "Karlsson：本场没有出场记录"}</div>
-        <div class="hint">${(() => { const d = rosterDiff(g); return d ? (d.same ? "阵容无变动" : `阵容变动：新上场 ${d.ins.length} · 没上场 ${d.outs.length}`) : "没有上一场可比"; })()}</div>
-        <div class="hint">已存档：进球/助攻视频 ${hl} · 采访 ${iv} · 照片 ${it.ps.length}${it.miss.length ? ` · <b style="color:var(--goal)">官方还有 ${it.miss.length} 个片段没下载</b>` : ""}</div></div>`; }).join("");
+      return `<div class="box gcard" data-g="${esc(g.id)}"><div class="row" style="justify-content:space-between"><span><b>${esc(g.date.slice(5))}</b> ${g.home ? "vs" : "@"} <b>${esc(g.opp)}</b></span>
+        <span><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(tn(g.outcome))}</span></span></div>
+        <div class="hint" style="margin-top:4px">${m ? `Karlsson: ${m.g} G · ${m.a} A · ${m.pts} P · ${m.hits} hits · ${m.sog} shots · ${esc(m.toi)}` : "Karlsson: did not play"}</div>
+        <div class="hint">${(() => { const d = rosterDiff(g); return d ? (d.same ? "No lineup changes" : `Lineup changes: ${d.ins.length} in · ${d.outs.length} out`) : "No previous game to compare"; })()}</div>
+        <div class="hint">Archived: goal/assist clips ${hl} · interviews ${iv} · photos ${it.ps.length}${it.miss.length ? ` · <b style="color:var(--goal)">${it.miss.length} official clips not downloaded</b>` : ""}</div></div>`; }).join("");
   document.querySelectorAll("[data-g]").forEach(el => el.onclick = () => { openGame = el.dataset.g; renderGames(); window.scrollTo(0, 0); });
   const sb = $("gSync"); if(sb) sb.onclick = async () => { sb.disabled = true; await post("/api/nhl/sync", {season: $("nhlSeason").value}); poll(); };
 }
@@ -548,35 +554,35 @@ function renderGameDetail(){
   const clipsBy = f => it.cs.filter(f).sort((a, b) => (a.moment || "").localeCompare(b.moment || ""));
   const sec = (title, arr, extra = "") => arr.length || extra ? `<div class="gsec">${title}</div>${arr.length ? `<div class="grid">${arr.map(clipHTML).join("")}</div>` : ""}${extra}` : "";
   const pr = r => `<tr class="${r.id === Number(openPid()) ? "me" : ""}"><td>${esc(r.num ?? "")} ${esc(r.name)}</td><td>${esc(r.pos || "")}</td><td>${r.g ?? ""}</td><td>${r.a ?? ""}</td><td>${r.pts ?? ""}</td><td>${r.pm ?? ""}</td><td>${r.hits ?? ""}</td><td>${r.sog ?? ""}</td><td>${r.blk ?? ""}</td><td>${esc(r.toi || "")}</td></tr>`;
-  const head = `<tr><th>球员</th><th>位置</th><th>进球</th><th>助攻</th><th>得分</th><th>+/-</th><th>冲撞</th><th>射门</th><th>封堵</th><th>上场</th></tr>`;
-  const photoGroup = k => { const a = it.ps.filter(p => (p.kind || "其他") === k); return a.length ? `<div class="hint" style="margin:8px 0 2px">${k === "数据表" ? "数据表图" : k === "阵容" ? "阵容图" : "其他照片"}</div><div class="pthumbs">${a.map(p => `<div class="pth s-${esc(p.status)}"><img src="${encodeURI(p.file)}" loading="lazy" data-pid="${esc(p.id)}" alt=""><div class="ph" style="color:var(--muted)">${esc(p.status)}</div></div>`).join("")}</div>` : ""; };
-  $("gameDetail").innerHTML = `<button class="btn" id="gBack">← 返回比赛列表</button>
-    <div class="box" style="margin-top:10px"><div class="row" style="justify-content:space-between"><span style="font-size:18px"><b>${esc(g.date)}</b> ${g.home ? "主场" : "客场"}对 <b>${esc(g.opp)}</b></span>
-      <span style="font-size:18px"><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(g.outcome)}</span></span></div>
-      <div class="hint">${esc(g.venue)} · 主教练 ${esc(g.coach)}（对手 ${esc(g.opp_coach)}）${(g.stars || []).length ? " · 三星：" + g.stars.map(s => `${s.star}. ${esc(s.name)}（${esc(s.team)}）`).join("　") : ""}</div></div>
-    <div class="gsec">Karlsson 本场数据</div>
-    <div class="box" style="overflow:auto">${m ? `<table class="gt">${head}${pr(m)}</table>` : `<span class="hint">本场没有出场记录。</span>`}</div>
-    <div class="gsec">全队数据对比</div>
+  const head = `<tr><th>Player</th><th>Pos</th><th>G</th><th>A</th><th>P</th><th>+/-</th><th>Hits</th><th>Shots</th><th>Blocks</th><th>TOI</th></tr>`;
+  const photoGroup = k => { const a = it.ps.filter(p => (p.kind || "其他") === k); return a.length ? `<div class="hint" style="margin:8px 0 2px">${k === "数据表" ? "Stats sheet images" : k === "阵容" ? "Lineup images" : "Other photos"}</div><div class="pthumbs">${a.map(p => `<div class="pth s-${esc(p.status)}"><img src="${encodeURI(p.file)}" loading="lazy" data-pid="${esc(p.id)}" alt=""><div class="ph" style="color:var(--muted)">${esc(tn(p.status))}</div></div>`).join("")}</div>` : ""; };
+  $("gameDetail").innerHTML = `<button class="btn" id="gBack">← Back to games</button>
+    <div class="box" style="margin-top:10px"><div class="row" style="justify-content:space-between"><span style="font-size:18px"><b>${esc(g.date)}</b> ${g.home ? "vs" : "@"} <b>${esc(g.opp)}</b></span>
+      <span style="font-size:18px"><b>${g.our_score}–${g.opp_score}</b> <span class="badge" style="background:${OUTC[g.outcome] || "var(--other)"}">${esc(tn(g.outcome))}</span></span></div>
+      <div class="hint">${esc(g.venue)} · Coach ${esc(g.coach)} (opponent ${esc(g.opp_coach)})${(g.stars || []).length ? " · Three stars: " + g.stars.map(s => `${s.star}. ${esc(s.name)} (${esc(s.team)})`).join("  ") : ""}</div></div>
+    <div class="gsec">Karlsson this game</div>
+    <div class="box" style="overflow:auto">${m ? `<table class="gt">${head}${pr(m)}</table>` : `<span class="hint">Did not play this game.</span>`}</div>
+    <div class="gsec">Team stats</div>
     <div class="box" style="overflow:auto"><table class="gt"><tr><th></th><th>PIT</th><th></th><th>${esc(g.opp)}</th></tr>${SCAT.filter(([k]) => g.team_stats && g.team_stats[k]).map(([k, n]) => { const t = g.team_stats[k], a = parseFloat(t.our) || 0, b = parseFloat(t.opp) || 0, s = a + b || 1;
       return `<tr><td>${n}</td><td><b>${fv(k, t.our)}</b></td><td><div class="bar2"><i class="o" style="width:${a / s * 100}%"></i><i class="p" style="width:${b / s * 100}%"></i></div></td><td>${fv(k, t.opp)}</td></tr>`; }).join("")}</table></div>
     <div class="g2"><div>${linesHTML(g)}</div><div>${iceHTML(g)}</div></div>
     ${rosterHTML(g)}
-    <div class="gsec">进球时间线</div>
-    <div class="box" style="overflow:auto"><table class="gt l"><tr><th>时间</th><th>球队</th><th>进球（助攻）</th><th>比分</th><th></th></tr>${(g.scoring || []).map(x => { const c = x.clip && clips.find(cc => cc.id === x.clip);
-      return `<tr class="${x.mine ? "me" : ""}"><td>${esc(x.period)} ${esc(x.time || "")}</td><td>${esc(x.team)}</td><td>${esc(x.scorer)}${x.assists.length ? "（" + esc(x.assists.join("、")) + "）" : ""}${x.strength === "pp" ? `<span class="tag2">多打少</span>` : x.strength === "sh" ? `<span class="tag2">少打多</span>` : ""}${x.mine ? `<span class="tag2 me">他的${esc(x.mine)}</span>` : ""}</td><td>${esc(x.score)}</td>
-        <td>${c ? `<a href="#" data-oc="${esc(c.id)}" style="color:var(--accent)">▶ 视频</a>` : (x.mine ? `<span class="hint">未下载</span>` : "")}</td></tr>`; }).join("")}</table></div>
-    ${sec("进球 / 助攻视频", clipsBy(c => c.type === "进球" || c.type === "助攻"), it.miss.length ? `<div class="box"><b style="color:var(--goal)">官方记录里还有 ${it.miss.length} 个片段没下载</b> <button class="btn primary" id="gGet" style="margin-left:8px">下载这 ${it.miss.filter(e => e.clip).length} 个</button></div>` : "")}
-    ${sec("赛前采访", clipsBy(c => c.type === "采访" && c.phase === "赛前"))}
-    ${sec("赛后采访", clipsBy(c => c.type === "采访" && c.phase === "赛后"))}
-    ${sec("采访（还没标注赛前/赛后）", clipsBy(c => c.type === "采访" && !c.phase))}
-    ${sec("其他视频", clipsBy(c => !["进球", "助攻", "采访"].includes(c.type)))}
-    ${it.ps.length ? `<div class="gsec">照片</div>${photoGroup("阵容")}${photoGroup("数据表")}${photoGroup("其他")}` : ""}
-    <div class="gsec">出场名单（PIT）</div>
-    <div class="box" style="overflow:auto"><div class="hint">前锋</div><table class="gt">${head}${(L.forwards || []).map(pr).join("")}</table>
-      <div class="hint" style="margin-top:8px">后卫</div><table class="gt">${head}${(L.defense || []).map(pr).join("")}</table>
-      <div class="hint" style="margin-top:8px">门将</div><table class="gt"><tr><th>球员</th><th>面对射门</th><th>扑救</th><th>失球</th><th>扑救率</th><th>结果</th><th>上场</th></tr>${(L.goalies || []).map(r => `<tr><td>${esc(r.num ?? "")} ${esc(r.name)}</td><td>${r.sa ?? ""}</td><td>${r.sv ?? ""}</td><td>${r.ga ?? ""}</td><td>${r.svp != null ? (Math.round(r.svp * 1000) / 1000).toFixed(3) : ""}</td><td>${esc(r.dec || "")}</td><td>${esc(r.toi || "")}</td></tr>`).join("")}</table>
-      ${(g.scratches || []).length ? `<div class="hint" style="margin-top:8px">看台名单：${g.scratches.map(esc).join("、")}</div>` : ""}</div>
-    <div class="hint" style="margin-top:10px">数据来自 NHL 官方公开接口。表格想存成图片，可以用 macOS 的截图（Shift+Command+4）。</div>`;
+    <div class="gsec">Scoring timeline</div>
+    <div class="box" style="overflow:auto"><table class="gt l"><tr><th>Time</th><th>Team</th><th>Goal (assists)</th><th>Score</th><th></th></tr>${(g.scoring || []).map(x => { const c = x.clip && clips.find(cc => cc.id === x.clip);
+      return `<tr class="${x.mine ? "me" : ""}"><td>${esc(en(x.period))} ${esc(x.time || "")}</td><td>${esc(x.team)}</td><td>${esc(x.scorer)}${x.assists.length ? " (" + esc(x.assists.join(", ")) + ")" : ""}${x.strength === "pp" ? `<span class="tag2">PP</span>` : x.strength === "sh" ? `<span class="tag2">SH</span>` : ""}${x.mine ? `<span class="tag2 me">His ${esc(en(x.mine))}</span>` : ""}</td><td>${esc(x.score)}</td>
+        <td>${c ? `<a href="#" data-oc="${esc(c.id)}" style="color:var(--accent)">▶ Video</a>` : (x.mine ? `<span class="hint">Not downloaded</span>` : "")}</td></tr>`; }).join("")}</table></div>
+    ${sec("Goal / assist clips", clipsBy(c => c.type === "进球" || c.type === "助攻"), it.miss.length ? `<div class="box"><b style="color:var(--goal)">${it.miss.length} more official clips not downloaded</b> <button class="btn primary" id="gGet" style="margin-left:8px">Download ${it.miss.filter(e => e.clip).length}</button></div>` : "")}
+    ${sec("Pre-game interviews", clipsBy(c => c.type === "采访" && c.phase === "赛前"))}
+    ${sec("Post-game interviews", clipsBy(c => c.type === "采访" && c.phase === "赛后"))}
+    ${sec("Interviews (not marked pre/post-game)", clipsBy(c => c.type === "采访" && !c.phase))}
+    ${sec("Other videos", clipsBy(c => !["进球", "助攻", "采访"].includes(c.type)))}
+    ${it.ps.length ? `<div class="gsec">Photos</div>${photoGroup("阵容")}${photoGroup("数据表")}${photoGroup("其他")}` : ""}
+    <div class="gsec">Roster (PIT)</div>
+    <div class="box" style="overflow:auto"><div class="hint">Forwards</div><table class="gt">${head}${(L.forwards || []).map(pr).join("")}</table>
+      <div class="hint" style="margin-top:8px">Defense</div><table class="gt">${head}${(L.defense || []).map(pr).join("")}</table>
+      <div class="hint" style="margin-top:8px">Goalies</div><table class="gt"><tr><th>Player</th><th>Shots against</th><th>Saves</th><th>GA</th><th>Sv%</th><th>Result</th><th>TOI</th></tr>${(L.goalies || []).map(r => `<tr><td>${esc(r.num ?? "")} ${esc(r.name)}</td><td>${r.sa ?? ""}</td><td>${r.sv ?? ""}</td><td>${r.ga ?? ""}</td><td>${r.svp != null ? (Math.round(r.svp * 1000) / 1000).toFixed(3) : ""}</td><td>${esc(r.dec || "")}</td><td>${esc(r.toi || "")}</td></tr>`).join("")}</table>
+      ${(g.scratches || []).length ? `<div class="hint" style="margin-top:8px">Scratches: ${g.scratches.map(esc).join(", ")}</div>` : ""}</div>
+    <div class="hint" style="margin-top:10px">Data comes from the official public NHL API. To save a table as an image, use a macOS screenshot (Shift+Command+4).</div>`;
   $("gBack").onclick = () => { openGame = null; lineEdit = null; lineDraft = null; lineNotice = null; renderGames(); };
   wireLines(g);
   document.querySelectorAll("#gameDetail .clip").forEach(el => el.onclick = () => openClip(el.dataset.id));
@@ -590,7 +596,7 @@ let _pid = 0; const openPid = () => _pid;
 const PST = ["待确认", "选入", "排除"];
 function renderPhotos(){
   const pend = photos.filter(p => p.status === "待确认").length;
-  $("pcount").textContent = pend ? ` (${pend} 待确认)` : "";
+  $("pcount").textContent = pend ? ` (${pend} pending)` : "";
   document.querySelectorAll("[data-v]").forEach(b => b.classList.toggle("on", b.dataset.v === view));
   $("viewClips").style.display = view === "clips" ? "" : "none";
   $("viewGames").style.display = view === "games" ? "" : "none";
@@ -598,24 +604,24 @@ function renderPhotos(){
   renderGames();
   if(view !== "photos") return;
   const cnt = s => photos.filter(p => p.status === s).length;
-  $("pstatus").innerHTML = PST.map(s => `<button class="chip ${pstatus===s?"on":""}" data-ps="${s}">${s === "选入" ? "已选入" : s === "排除" ? "已排除" : s} ${cnt(s)}</button>`).join("");
+  $("pstatus").innerHTML = PST.map(s => `<button class="chip ${pstatus===s?"on":""}" data-ps="${s}">${tn(s)} ${cnt(s)}</button>`).join("");
   document.querySelectorAll("[data-ps]").forEach(b => b.onclick = () => { pstatus = b.dataset.ps; renderPhotos(); });
   const q = $("pq").value.trim().toLowerCase();
   const list = photos.filter(p => p.status === pstatus && inRangeD(p.date) && (!q || (p.text + " " + p.alt + " " + p.note).toLowerCase().includes(q)));
   const groups = {};
   list.forEach(p => (groups[p.tweet_id] ||= []).push(p));
   const ids = Object.keys(groups).sort((a, b) => groups[b][0].date.localeCompare(groups[a][0].date) || (a < b ? 1 : -1));
-  $("pinfo").textContent = !photos.length ? "还没有照片。在上面粘贴 X（推特）帖子的链接，如果帖子里是照片，会把整组图下载下来，在这里逐张选“有他的”。"
-    : `${list.length} 张，来自 ${ids.length} 条帖子。${pstatus === "待确认" ? "点每张下面的“选入”或“排除”；选入的会按赛季和日期放进文件夹，排除的收进“_已排除”，随时可以改回来。" : ""}`;
+  $("pinfo").textContent = !photos.length ? "No photos yet. Paste an X (Twitter) post link above; if the post has photos, the whole set is downloaded and you pick the ones with him here."
+    : `${list.length} photos from ${ids.length} posts. ${pstatus === "待确认" ? "Click “Select” or “Exclude” under each photo; selected ones are filed by season and date, excluded ones go to “_已排除”, and you can change your mind any time." : ""}`;
   $("pgroups").innerHTML = ids.map(t => { const g = groups[t].sort((a, b) => a.idx - b.idx), f = g[0];
     return `<div class="box"><div class="row" style="justify-content:space-between"><span><b>${esc(f.date.slice(5))}</b> · @${esc(f.author)} ·
-      <a href="${esc(f.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">原帖</a> <span class="hint">（共 ${f.count} 张）</span></span>
-      ${pstatus === "待确认" ? `<span class="row"><button class="btn" data-all="${t}|选入">本页全部选入</button><button class="btn" data-all="${t}|排除">本页全部排除</button></span>` : ""}</div>
+      <a href="${esc(f.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">Original post</a> <span class="hint">(${f.count} photos)</span></span>
+      ${pstatus === "待确认" ? `<span class="row"><button class="btn" data-all="${t}|选入">Select all on page</button><button class="btn" data-all="${t}|排除">Exclude all on page</button></span>` : ""}</div>
       <div class="ptext">${esc(f.text)}</div>
-      ${g.some(p => p.hint) ? `<div class="hint" style="color:var(--event)">提示：${esc(g.find(p => p.hint).hint)}（只是文字线索，具体哪张有他要你来看）</div>` : ""}
+      ${g.some(p => p.hint) ? `<div class="hint" style="color:var(--event)">Hint: ${esc(g.find(p => p.hint).hint)} (just a text clue; you decide which photos show him)</div>` : ""}
       <div class="pthumbs">${g.map(p => `<div class="pth s-${esc(p.status)}"><img src="${encodeURI(p.file)}" loading="lazy" data-pid="${esc(p.id)}" alt="">
-        <div class="pb">${PST.filter(s => s !== p.status).map(s => `<button class="btn" data-mk="${esc(p.id)}|${s}">${s === "选入" ? "✓ 选入" : s === "排除" ? "✗ 排除" : "↺ 待确认"}</button>`).join("")}</div>
-        ${p.alt ? `<div class="ph" title="${esc(p.alt)}">有图片说明</div>` : ""}</div>`).join("")}</div></div>`; }).join("");
+        <div class="pb">${PST.filter(s => s !== p.status).map(s => `<button class="btn" data-mk="${esc(p.id)}|${s}">${s === "选入" ? "✓ Select" : s === "排除" ? "✗ Exclude" : "↺ Pending"}</button>`).join("")}</div>
+        ${p.alt ? `<div class="ph" title="${esc(p.alt)}">Has alt text</div>` : ""}</div>`).join("")}</div></div>`; }).join("");
   document.querySelectorAll("[data-mk]").forEach(b => b.onclick = async () => { const [id, st] = b.dataset.mk.split("|"); await post("/api/photo/mark", {ids: [id], status: st}); await load(); });
   document.querySelectorAll("[data-all]").forEach(b => b.onclick = async () => { const [t, st] = b.dataset.all.split("|");
     await post("/api/photo/mark", {ids: groups[t].map(p => p.id), status: st}); await load(); });
@@ -624,19 +630,19 @@ function renderPhotos(){
 function openPhoto(id){
   const p = photos.find(x => x.id === id); if(!p) return;
   $("mbox").innerHTML = `<img src="${encodeURI(p.file)}" style="width:100%;border-radius:8px;max-height:70vh;object-fit:contain;background:#000" alt="">
-    <div class="form"><div><label>日期</label><input type="date" id="p_date" value="${esc(p.date)}"></div>
-      <div style="grid-column:span 2"><label>我的备注</label><input id="p_note" value="${esc(p.note)}"></div>
-      <div style="grid-column:span 2"><label>所属比赛</label><select id="p_game"><option value="">（不属于某场比赛）</option>${games.map(g => `<option value="${esc(g.id)}" ${String(g.id)===String(p.game_id)?"selected":""}>${esc(g.date)} ${g.home?"vs":"@"} ${esc(g.opp)}</option>`).join("")}</select></div>
-      <div><label>照片类型</label><select id="p_kind">${["阵容", "数据表", "其他"].map(x => `<option ${x===(p.kind||"其他")?"selected":""}>${x}</option>`).join("")}</select></div></div>
-    <div class="cap">${esc(p.text) || "（没有文字）"}${p.alt ? "\n\n图片说明：" + esc(p.alt) : ""}</div>
-    <div class="hint" style="margin-top:6px">状态：${esc(p.status)} · <a href="${esc(p.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">原帖</a> · 文件：${esc(p.file)}</div>
-    <div class="row" style="margin-top:10px;justify-content:space-between"><span class="row"><button class="btn primary" id="psave">保存</button><button class="btn" id="close">关闭</button></span>
-      <button class="btn danger" id="pdel">删除</button></div><div class="hint" id="msg"></div>`;
+    <div class="form"><div><label>Date</label><input type="date" id="p_date" value="${esc(p.date)}"></div>
+      <div style="grid-column:span 2"><label>My notes</label><input id="p_note" value="${esc(p.note)}"></div>
+      <div style="grid-column:span 2"><label>Game</label><select id="p_game"><option value="">(not part of a game)</option>${games.map(g => `<option value="${esc(g.id)}" ${String(g.id)===String(p.game_id)?"selected":""}>${esc(g.date)} ${g.home?"vs":"@"} ${esc(g.opp)}</option>`).join("")}</select></div>
+      <div><label>Photo type</label><select id="p_kind">${["阵容", "数据表", "其他"].map(x => `<option value="${x}" ${x===(p.kind||"其他")?"selected":""}>${tn(x)}</option>`).join("")}</select></div></div>
+    <div class="cap">${esc(p.text) || "(no text)"}${p.alt ? "\n\nAlt text: " + esc(p.alt) : ""}</div>
+    <div class="hint" style="margin-top:6px">Status: ${esc(tn(p.status))} · <a href="${esc(p.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">Original post</a> · File: ${esc(p.file)}</div>
+    <div class="row" style="margin-top:10px;justify-content:space-between"><span class="row"><button class="btn primary" id="psave">Save</button><button class="btn" id="close">Close</button></span>
+      <button class="btn danger" id="pdel">Delete</button></div><div class="hint" id="msg"></div>`;
   $("modal").classList.add("on");
   $("close").onclick = closeModal;
   $("psave").onclick = async () => { const r = await post("/api/photo/update", {id, fields: {date: $("p_date").value, note: $("p_note").value, game_id: $("p_game").value, kind: $("p_kind").value}});
-    if(r.error){ $("msg").textContent = r.error; return; } await load(); openPhoto(id); $("msg").textContent = "已保存"; };
-  $("pdel").onclick = async () => { if(!confirm("删除这张照片？文件会移到 library/.trash 文件夹。")) return; await post("/api/photo/delete", {id}); closeModal(); load(); };
+    if(r.error){ $("msg").textContent = r.error; return; } await load(); openPhoto(id); $("msg").textContent = "Saved"; };
+  $("pdel").onclick = async () => { if(!confirm("Delete this photo? The file will be moved to the library/.trash folder.")) return; await post("/api/photo/delete", {id}); closeModal(); load(); };
 }
 document.querySelectorAll("[data-v]").forEach(b => b.onclick = () => { view = b.dataset.v; renderPhotos(); });
 $("pq").oninput = renderPhotos;
@@ -646,63 +652,63 @@ function openClip(id, edit = false){
   const c = clips.find(x => x.id === id); if(!c) return; openId = id; editing = edit;
   const gen_ok = ["采访", "活动", "其他"].includes(c.type);
   const g = games.find(x => String(x.id) === String(c.game_id));
-  const segInfo = c.seg_start !== "" && c.seg_start != null ? `<div class="hint" style="margin-bottom:6px">截取自完整视频的 ${tm(c.seg_start)} – ${tm(c.seg_end)}${edit ? "（想改起止时间：删除后重新添加）" : ""}</div>` : "";
-  const trBlock = c.transcript ? `<details id="trd" style="flex:1"><summary class="hint" style="cursor:pointer">查看英文逐字稿（用来核对摘要）</summary><div class="cap" id="trtext">加载中…</div></details>` : "";
-  const srcLine = `<div class="hint" style="margin-top:8px">来源：<a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(c.channel || c.source_url)}</a> · 文件：${esc(c.video)}</div>`;
+  const segInfo = c.seg_start !== "" && c.seg_start != null ? `<div class="hint" style="margin-bottom:6px">Cut from the full video at ${tm(c.seg_start)} – ${tm(c.seg_end)}${edit ? " (to change the start/end, delete and add it again)" : ""}</div>` : "";
+  const trBlock = c.transcript ? `<details id="trd" style="flex:1"><summary class="hint" style="cursor:pointer">View English transcript (to check the summary)</summary><div class="cap" id="trtext">Loading…</div></details>` : "";
+  const srcLine = `<div class="hint" style="margin-top:8px">Source: <a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(c.channel || c.source_url)}</a> · File: ${esc(c.video)}</div>`;
   const head = `<video controls preload="metadata" src="${encodeURI(c.video)}" ${c.thumb ? `poster="${encodeURI(c.thumb)}"` : ""}></video>
-    <div class="hint" id="vinfo" style="margin-top:6px">画质：读取中…</div>`;
+    <div class="hint" id="vinfo" style="margin-top:6px">Quality: reading…</div>`;
   if(!edit){
-    const meta = [c.game_date, c.type, c.opponent && "对手 " + c.opponent, (+c.goals ? `进球 ${c.goals}` : ""), (+c.assists ? `助攻 ${c.assists}` : ""), c.moment, c.phase,
+    const meta = [c.game_date, tn(c.type), c.opponent && "vs " + c.opponent, (+c.goals ? `${c.goals} goal(s)` : ""), (+c.assists ? `${c.assists} assist(s)` : ""), en(c.moment), tn(c.phase),
       g && `${g.home ? "vs" : "@"} ${g.opp} ${g.our_score}–${g.opp_score}`].filter(Boolean).map(esc).join(" · ");
     const sum = (c.summary || "").trim();
     $("mbox").innerHTML = head + `
     <h3 style="margin:10px 0 4px">${esc(c.title)}</h3>
     <div class="hint">${meta}</div>
-    ${c.tags ? `<div class="hint" style="margin-top:4px">标签：${esc(c.tags)}</div>` : ""}
-    <div style="margin:12px 0 4px"><b style="font-size:13px">内容摘要</b><span class="src" id="sumSrc">${esc(c.summary_src || "未生成")}</span></div>
-    <div class="cap" id="sumView" style="max-height:none">${sum ? esc(sum) : "（还没有摘要，点“编辑”可以自己写，或在下面生成）"}</div>
-    <div class="row" style="margin-top:4px">${gen_ok ? `<button class="btn" id="gen">${c.summary ? "重新生成摘要" : "生成摘要"}</button>` : ""}${trBlock}</div>
-    ${c.notes ? `<div class="hint" style="margin:10px 0 4px">我的备注</div><div class="cap">${esc(c.notes)}</div>` : ""}
+    ${c.tags ? `<div class="hint" style="margin-top:4px">Tags: ${esc(c.tags)}</div>` : ""}
+    <div style="margin:12px 0 4px"><b style="font-size:13px">Summary</b><span class="src" id="sumSrc">${esc(sn(c.summary_src || "未生成"))}</span></div>
+    <div class="cap" id="sumView" style="max-height:none">${sum ? esc(sum) : "(No summary yet. Click “Edit” to write one, or generate it below.)"}</div>
+    <div class="row" style="margin-top:4px">${gen_ok ? `<button class="btn" id="gen">${c.summary ? "Regenerate summary" : "Generate summary"}</button>` : ""}${trBlock}</div>
+    ${c.notes ? `<div class="hint" style="margin:10px 0 4px">My notes</div><div class="cap">${esc(c.notes)}</div>` : ""}
     ${segInfo}
-    <div class="hint" style="margin:10px 0 4px">视频下面的原文字说明</div>
-    <div class="cap">${esc(c.caption) || "（没有文字说明）"}</div>
+    <div class="hint" style="margin:10px 0 4px">Original caption under the video</div>
+    <div class="cap">${esc(c.caption) || "(no caption)"}</div>
     ${srcLine}
     <div class="row" style="margin-top:12px;justify-content:space-between">
-      <span class="row"><button class="btn primary" id="edit">编辑</button><button class="btn" id="close">关闭</button></span>
-      <button class="btn danger" id="del">删除</button></div>
+      <span class="row"><button class="btn primary" id="edit">Edit</button><button class="btn" id="close">Close</button></span>
+      <button class="btn danger" id="del">Delete</button></div>
     <div class="hint" id="msg"></div>`;
   } else {
     $("mbox").innerHTML = head + `
     <div class="form">
-      <div style="grid-column:1/-1"><label>标题</label><input id="f_title" value="${esc(c.title)}"></div>
-      <div><label>比赛日期</label><input type="date" id="f_game_date" value="${esc(c.game_date)}"></div>
-      <div><label>类型</label><select id="f_type">${TYPES.map(t => `<option ${t===c.type?"selected":""}>${t}</option>`).join("")}</select></div>
-      <div><label>进球数</label><input type="number" min="0" id="f_goals" value="${c.goals}"></div>
-      <div><label>助攻数</label><input type="number" min="0" id="f_assists" value="${c.assists}"></div>
-      <div><label>对手</label><input id="f_opponent" value="${esc(c.opponent)}"></div>
-      <div><label>时刻（如 第2节 12:34）</label><input id="f_moment" value="${esc(c.moment)}"></div>
-      <div style="grid-column:span 2"><label>所属比赛</label><select id="f_game_id"><option value="">（不属于某场比赛）</option>${games.map(g => `<option value="${esc(g.id)}" ${String(g.id)===String(c.game_id)?"selected":""}>${esc(g.date)} ${g.home?"vs":"@"} ${esc(g.opp)}  ${g.our_score}–${g.opp_score}</option>`).join("")}</select></div>
-      <div><label>采访阶段</label><select id="f_phase">${["", "赛前", "赛后"].map(x => `<option value="${x}" ${x===(c.phase||"")?"selected":""}>${x || "（不适用）"}</option>`).join("")}</select></div>
-      <div style="grid-column:1/-1"><label>标签（用逗号分隔）</label><input id="f_tags" value="${esc(c.tags)}"></div>
-      <div style="grid-column:1/-1"><label>我的备注</label><input id="f_notes" value="${esc(c.notes)}"></div>
+      <div style="grid-column:1/-1"><label>Title</label><input id="f_title" value="${esc(c.title)}"></div>
+      <div><label>Game date</label><input type="date" id="f_game_date" value="${esc(c.game_date)}"></div>
+      <div><label>Type</label><select id="f_type">${TYPES.map(t => `<option value="${t}" ${t===c.type?"selected":""}>${tn(t)}</option>`).join("")}</select></div>
+      <div><label>Goals</label><input type="number" min="0" id="f_goals" value="${c.goals}"></div>
+      <div><label>Assists</label><input type="number" min="0" id="f_assists" value="${c.assists}"></div>
+      <div><label>Opponent</label><input id="f_opponent" value="${esc(c.opponent)}"></div>
+      <div><label>Moment (e.g. P2 12:34)</label><input id="f_moment" value="${esc(c.moment)}"></div>
+      <div style="grid-column:span 2"><label>Game</label><select id="f_game_id"><option value="">(not part of a game)</option>${games.map(g => `<option value="${esc(g.id)}" ${String(g.id)===String(c.game_id)?"selected":""}>${esc(g.date)} ${g.home?"vs":"@"} ${esc(g.opp)}  ${g.our_score}–${g.opp_score}</option>`).join("")}</select></div>
+      <div><label>Interview phase</label><select id="f_phase">${["", "赛前", "赛后"].map(x => `<option value="${x}" ${x===(c.phase||"")?"selected":""}>${x ? tn(x) : "(n/a)"}</option>`).join("")}</select></div>
+      <div style="grid-column:1/-1"><label>Tags (comma-separated)</label><input id="f_tags" value="${esc(c.tags)}"></div>
+      <div style="grid-column:1/-1"><label>My notes</label><input id="f_notes" value="${esc(c.notes)}"></div>
     </div>
-    <div style="margin:10px 0 4px"><b style="font-size:13px">内容摘要</b><span class="src" id="sumSrc">${esc(c.summary_src || "未生成")}</span></div>
-    <textarea class="sumbox" id="f_summary" placeholder="${c.type === "采访" ? "还没有摘要。点下面的“生成摘要”：先在本机转写成英文逐字稿，再用云端模型总结。" : "还没有摘要，可以自己写几句。"}">${esc(c.summary || "")}</textarea>
-    <div class="row" style="margin-top:4px">${gen_ok ? `<button class="btn" id="gen">${c.summary ? "重新生成摘要" : "生成摘要"}</button>` : ""}${trBlock}</div>
-    <div class="hint">${gen_ok ? "AI 摘要由云端模型根据英文逐字稿生成（视频本身不会上传），可能漏掉重点或把话说错，请对照逐字稿核对；你改过的内容会标为“手写”。" : "进球/助攻的摘要由官方数据直接生成。"}</div>
+    <div style="margin:10px 0 4px"><b style="font-size:13px">Summary</b><span class="src" id="sumSrc">${esc(sn(c.summary_src || "未生成"))}</span></div>
+    <textarea class="sumbox" id="f_summary" placeholder="${c.type === "采访" ? "No summary yet. Click “Generate summary” below: it first transcribes to an English transcript on this computer, then summarizes with a cloud model." : "No summary yet. You can write a few lines yourself."}">${esc(c.summary || "")}</textarea>
+    <div class="row" style="margin-top:4px">${gen_ok ? `<button class="btn" id="gen">${c.summary ? "Regenerate summary" : "Generate summary"}</button>` : ""}${trBlock}</div>
+    <div class="hint">${gen_ok ? "The AI summary is written in Chinese by a cloud model from the English transcript (the video itself is not uploaded). It may miss points or get things wrong, so check it against the transcript; anything you edit is marked “Manual”." : "Goal/assist summaries are generated directly from official data."}</div>
     ${segInfo}
-    <div class="hint" style="margin-bottom:4px">视频下面的原文字说明</div>
-    <div class="cap">${esc(c.caption) || "（没有文字说明）"}</div>
+    <div class="hint" style="margin-bottom:4px">Original caption under the video</div>
+    <div class="cap">${esc(c.caption) || "(no caption)"}</div>
     ${srcLine}
     <div class="row" style="margin-top:12px;justify-content:space-between">
-      <span class="row"><button class="btn primary" id="save">保存修改</button><button class="btn" id="cancel">取消</button></span>
-      <button class="btn danger" id="del">删除</button></div>
+      <span class="row"><button class="btn primary" id="save">Save changes</button><button class="btn" id="cancel">Cancel</button></span>
+      <button class="btn danger" id="del">Delete</button></div>
     <div class="hint" id="msg"></div>`;
   }
   $("modal").classList.add("on");
   api("/api/probe?id=" + encodeURIComponent(id)).then(p => { const el = $("vinfo"); if(!el || openId !== id) return;
-    el.textContent = p.error ? "画质：" + p.error : `画质：${p.width}×${p.height} · ${p.fps} 帧/秒 · 视频 ${(p.vbr / 1e6).toFixed(1)} Mbps · ${p.vcodec}` +
-      (p.acodec ? ` · 音频 ${p.acodec} ${Math.round(p.abr / 1000)} kbps` : "") + ` · ${(p.size / 1e6).toFixed(1)} MB`; });
+    el.textContent = p.error ? "Quality: " + p.error : `Quality: ${p.width}×${p.height} · ${p.fps} fps · video ${(p.vbr / 1e6).toFixed(1)} Mbps · ${p.vcodec}` +
+      (p.acodec ? ` · audio ${p.acodec} ${Math.round(p.abr / 1000)} kbps` : "") + ` · ${(p.size / 1e6).toFixed(1)} MB`; });
   if(edit){
     $("f_type").onchange = () => { const t = $("f_type").value; $("f_goals").value = t === "进球" ? 1 : 0; $("f_assists").value = t === "助攻" ? 1 : 0; };
     $("cancel").onclick = () => openClip(id);
@@ -710,20 +716,20 @@ function openClip(id, edit = false){
       const f = {}; ["title","game_date","type","goals","assists","opponent","moment","tags","notes","summary","game_id","phase"].forEach(k => f[k] = $("f_" + k).value);
       const r = await post("/api/update", {id, fields: f});
       if(r.error){ $("msg").textContent = r.error; return; }
-      await load(); openClip(id); $("msg").textContent = "已保存";
+      await load(); openClip(id); $("msg").textContent = "Saved";
     };
   } else {
     $("close").onclick = closeModal;
     $("edit").onclick = () => openClip(id, true);
   }
   const gen = $("gen"); if(gen) gen.onclick = async () => {
-    if(c.summary && !confirm("重新生成会覆盖现在的摘要（包括你手写的内容），确定吗？")) return;
-    gen.disabled = true; gen.textContent = "已开始，进度见页面顶部的任务列表";
+    if(c.summary && !confirm("Regenerating will overwrite the current summary (including anything you wrote). Continue?")) return;
+    gen.disabled = true; gen.textContent = "Started; see the task list at the top of the page";
     const r = await post("/api/summarize", {id}); if(r.error) alert(r.error); poll(); };
   const trd = $("trd"); if(trd) trd.ontoggle = async () => { if(trd.open && !trd.dataset.done){ trd.dataset.done = 1;
-    try { $("trtext").textContent = await (await fetch(encodeURI(c.transcript))).text(); } catch(e){ $("trtext").textContent = "读取失败"; } } };
+    try { $("trtext").textContent = await (await fetch(encodeURI(c.transcript))).text(); } catch(e){ $("trtext").textContent = "Failed to load"; } } };
   $("del").onclick = async () => {
-    if(!confirm("删除这个片段？文件会移到 library/.trash 文件夹，不会立刻彻底删除。")) return;
+    if(!confirm("Delete this clip? The file will be moved to the library/.trash folder, not erased immediately.")) return;
     await post("/api/delete", {id}); closeModal(); load();
   };
 }
@@ -738,29 +744,29 @@ $("add").onclick = async () => {
   const r = await post("/api/add", {urls: $("urls").value, type: $("addType").value, date: $("addDate").value, opponent: $("addOpp").value.trim(),
     start: $("addStart").value, end: $("addEnd").value, title: $("addTitle").value});
   if(r.error){ alert(r.error); return; }
-  if(r.warn) alert("有几行没能识别，已跳过：" + r.warn);
+  if(r.warn) alert("Some lines were not recognized and were skipped: " + r.warn);
   $("urls").value = ""; $("addStart").value = $("addEnd").value = $("addTitle").value = ""; poll();
 };
 async function poll(){
   clearTimeout(timer);
   const js = await api("/api/jobs");
   const run = js.filter(j => !j.done), bad = js.filter(j => j.error), ok = js.filter(j => j.done && !j.error);
-  $("jobs").innerHTML = (js.length ? `<div class="hint">进行中 ${run.length} · 已完成 ${ok.length} · 失败 ${bad.length}</div>` : "") +
+  $("jobs").innerHTML = (js.length ? `<div class="hint">In progress ${run.length} · Done ${ok.length} · Failed ${bad.length}</div>` : "") +
     [...run, ...bad].slice(0, 8).map(j => `<div class="job ${j.error ? "err" : ""}">${esc(j.url.slice(0, 70))} — ${esc(j.stage)}${j.error ? "：" + esc(j.error) : ""}</div>`).join("") +
     (!run.length ? ok.slice(-2).map(j => `<div class="job">${esc(j.url.slice(0, 70))} — ${esc(j.stage)}</div>`).join("") : "");
   const fresh = js.filter(j => j.done && !seenJobs.has(j.id));
   fresh.forEach(j => seenJobs.add(j.id));
   const added = js.some(j => j.done && !j.error && j.clip && !clips.find(c => c.id === j.clip));
   if(fresh.some(j => j.photos)){ view = "photos"; pstatus = "待确认"; }
-  if(added || fresh.length || (js.some(j => j.done && j.stage.startsWith("完成：")) && !run.length)){
+  if(added || fresh.length || (js.some(j => j.done && j.stage.startsWith("Done:")) && !run.length)){
     await load();
     // 正在看的片段如果刚生成了摘要, 只更新摘要框, 不覆盖其他还没保存的修改
     if(openId && fresh.some(j => j.clip === openId)){ const c = clips.find(x => x.id === openId);
-      if(c && $("sumView")) $("sumView").textContent = (c.summary || "").trim() || "（还没有摘要，点“编辑”可以自己写，或在下面生成）";
-      if(c && ($("f_summary") || $("sumView"))){ if($("f_summary")) $("f_summary").value = c.summary || ""; $("sumSrc").textContent = c.summary_src || "未生成";
-        const g = $("gen"); if(g){ g.disabled = false; g.textContent = "重新生成摘要"; } } }
+      if(c && $("sumView")) $("sumView").textContent = (c.summary || "").trim() || "(No summary yet. Click “Edit” to write one, or generate it below.)";
+      if(c && ($("f_summary") || $("sumView"))){ if($("f_summary")) $("f_summary").value = c.summary || ""; $("sumSrc").textContent = sn(c.summary_src || "未生成");
+        const g = $("gen"); if(g){ g.disabled = false; g.textContent = "Regenerate summary"; } } }
   }
-  $("nhlSync").disabled = js.some(j => !j.done && j.url === "同步 NHL 官方数据");
+  $("nhlSync").disabled = js.some(j => !j.done && j.url === "Sync NHL official data");
   if(run.length) timer = setTimeout(poll, 2500);
 }
 async function load(){ let gm, ln; [clips, nhl, photos, gm, ln] = await Promise.all([api("/api/clips"), api("/api/nhl"), api("/api/photos"), api("/api/games"), api("/api/lines")]); games = gm.games || []; lineData = ln || {}; render(); }
@@ -770,11 +776,11 @@ $("nhlSync").onclick = async () => { $("nhlSync").disabled = true; await post("/
 (async () => {
   const cfg = await api("/api/config"); TYPES = cfg.types;
   document.title = cfg.title; $("title").textContent = cfg.title; _pid = cfg.nhl_player_id || 0;
-  $("addType").innerHTML = `<option value="">类型：自动识别</option>` + TYPES.map(t => `<option>${t}</option>`).join("");
+  $("addType").innerHTML = `<option value="">Type: auto-detect</option>` + TYPES.map(t => `<option value="${t}">${tn(t)}</option>`).join("");
   const t = new Date(), y0 = t.getMonth() >= 6 ? t.getFullYear() : t.getFullYear() - 1;
   START = cfg.archive_start || "";
-  $("nhlSeason").innerHTML = [0, 1, 2].filter(k => !START || `${y0 - k + 1}-06-30` >= START).map(k => { const y = y0 - k; return `<option value="${y}${y+1}">${y}-${String(y+1).slice(2)} 赛季${k===0?"（本赛季）":""}</option>`; }).join("");
-  if(START){ $("addDate").min = START; $("startNote").textContent = `只收录 ${START} 之后的内容，更早的会自动跳过。`; }
+  $("nhlSeason").innerHTML = [0, 1, 2].filter(k => !START || `${y0 - k + 1}-06-30` >= START).map(k => { const y = y0 - k; return `<option value="${y}${y+1}">${y}-${String(y+1).slice(2)} season${k===0?" (current)":""}</option>`; }).join("");
+  if(START){ $("addDate").min = START; $("startNote").textContent = `Only content from ${START} onward is archived; earlier items are skipped automatically.`; }
   await load(); poll();
 })();
 </script>

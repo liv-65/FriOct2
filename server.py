@@ -241,11 +241,11 @@ def parse_tasks(text):
             if rest:
                 r = re.fullmatch(rf"({TIME_RE})\s*(?:[-–—~]|到|\s)\s*({TIME_RE})", rest)
                 if not r:
-                    errors.append(f"看不懂这段时间: “{rest}”（正确写法如 12:30-13:05）")
+                    errors.append(f"Cannot read this time range: “{rest}” (use a format like 12:30-13:05)")
                     continue
                 t["start"], t["end"] = parse_time(r.group(1)), parse_time(r.group(2))
                 if t["end"] <= t["start"]:
-                    errors.append(f"终点要大于起点: “{rest}”")
+                    errors.append(f"End must be after start: “{rest}”")
                     continue
             tasks.append(t)
     return tasks, errors
@@ -260,7 +260,7 @@ def fetch_info(url):
     r = subprocess.run(["yt-dlp", "--no-playlist", "--skip-download", "--dump-single-json", url],
                        capture_output=True, text=True, timeout=120, stdin=subprocess.DEVNULL)
     if r.returncode != 0 or not r.stdout.strip():
-        raise RuntimeError("读取视频信息失败: " + (r.stderr.strip().splitlines() or ["未知错误"])[-1][:160])
+        raise RuntimeError("Failed to read video info: " + (r.stderr.strip().splitlines() or ["unknown error"])[-1][:160])
     return json.loads(r.stdout)
 
 
@@ -269,8 +269,8 @@ def run_add(jid, url, opt):
     seg = start is not None
     try:
         if not shutil.which("yt-dlp"):
-            raise RuntimeError("没有找到 yt-dlp")
-        set_job(jid, stage="排队中")
+            raise RuntimeError("yt-dlp not found")
+        set_job(jid, stage="Queued")
         xm = re.search(X_RE, url)
         if xm and not seg:      # X 帖子: 只有照片的走照片流程; 有视频的照旧下载视频
             try:
@@ -283,24 +283,24 @@ def run_add(jid, url, opt):
         key = (f"{m.group(1)}_{int(start)}-{int(end)}" if seg else m.group(1)) if m else None
         key = opt.get("id") or key
         if key and any(x["id"] == key for x in read_clips()):
-            raise RuntimeError("这个视频已经在存档里了" if not seg else "这一段已经在存档里了")
+            raise RuntimeError("This video is already in the archive" if not seg else "This segment is already in the archive")
         if cutoff() and not opt.get("date") and not opt.get("id"):   # 没有指定比赛日期时, 下载前先看发布日期
-            set_job(jid, stage="读取视频信息")
+            set_job(jid, stage="Reading video info")
             ud = (fetch_info(url).get("upload_date") or "")
             if len(ud) == 8 and too_old(f"{ud[:4]}-{ud[4:6]}-{ud[6:8]}"):
-                raise RuntimeError(f"这个视频发布于 {ud[:4]}-{ud[4:6]}-{ud[6:8]}，早于起始日期 {cutoff()}，已跳过。"
+                raise RuntimeError(f"This video was published on {ud[:4]}-{ud[4:6]}-{ud[6:8]}, before the start date {cutoff()}; skipped."
                                    "如果比赛确实在起始日期之后，添加时请填上比赛日期。")
         with DL_LOCK:
             tmp = tempfile.mkdtemp()
             try:
                 if seg:
-                    set_job(jid, stage="读取视频信息")
+                    set_job(jid, stage="Reading video info")
                     total = fetch_info(url).get("duration") or 0
                     if total and start >= total:
-                        raise RuntimeError(f"起点 {fmt_time(start)} 超过了视频长度 {fmt_time(total)}")
+                        raise RuntimeError(f"Start {fmt_time(start)} is past the video length {fmt_time(total)}")
                     if total and end > total + 1:
-                        raise RuntimeError(f"终点 {fmt_time(end)} 超过了视频长度 {fmt_time(total)}")
-                set_job(jid, stage="下载中(只下载所选片段)" if seg else "下载中(视频较长时需要一些时间)")
+                        raise RuntimeError(f"End {fmt_time(end)} is past the video length {fmt_time(total)}")
+                set_job(jid, stage="Downloading (selected part only)" if seg else "Downloading (long videos take a while)")
                 cmd = ["yt-dlp", "--no-playlist", "-f", FMT, "-S", SORT, "--merge-output-format", "mp4",
                        "--write-info-json", "--no-progress", "-o", os.path.join(tmp, "%(id)s.%(ext)s")]
                 if seg:   # 精确剪切(会重新编码切口附近的画面); 封面稍后用片段里的一帧生成
@@ -311,7 +311,7 @@ def run_add(jid, url, opt):
                 infos = glob.glob(os.path.join(tmp, "*.info.json"))
                 vids = glob.glob(os.path.join(tmp, "*.mp4"))
                 if r.returncode != 0 or not infos or not vids:
-                    raise RuntimeError("下载失败: " + (r.stderr.strip().splitlines() or ["未知错误"])[-1][:160])
+                    raise RuntimeError("Download failed: " + (r.stderr.strip().splitlines() or ["unknown error"])[-1][:160])
                 info = json.load(open(infos[0], encoding="utf-8"))
                 vid = info.get("id") or hashlib.sha1(url.encode()).hexdigest()[:11]
                 cid = opt.get("id") or (f"{vid}_{int(start)}-{int(end)}" if seg else vid)
@@ -329,7 +329,7 @@ def run_add(jid, url, opt):
                 with LOCK:
                     rows = read_clips()
                     if any(x["id"] == cid for x in rows):
-                        raise RuntimeError("这个视频已经在存档里了")
+                        raise RuntimeError("This video is already in the archive")
                     ctype = opt.get("type") if opt.get("type") in TYPES else guess_type(title if not opt.get("title") else opt["title"], desc if not seg else "")
                     g, a = guess_counts(ctype, show_title, desc)
                     if seg and not opt.get("type"):   # 集锦里取一段, 默认按 1 个球/助攻算, 不套用整段视频标题里的数量
@@ -354,7 +354,7 @@ def run_add(jid, url, opt):
                     if os.path.exists(os.path.join(ROOT, stem + ".mp4")):
                         stem += "_" + vid[:6]
                     if not is_compatible(vids[0]):
-                        set_job(jid, stage="转码为通用格式(h264+aac)")
+                        set_job(jid, stage="Transcoding to a common format (h264+aac)")
                         make_compatible(vids[0])
                     shutil.move(vids[0], os.path.join(ROOT, stem + ".mp4"))
                     if seg:
@@ -375,12 +375,12 @@ def run_add(jid, url, opt):
                     write_clips(rows)
             finally:
                 shutil.rmtree(tmp, ignore_errors=True)
-        set_job(jid, stage="完成", done=True, clip=cid)
+        set_job(jid, stage="Done", done=True, clip=cid)
         if ctype == "采访" and config().get("auto_summary", True) and providers():
             start_summary(cid)
     except Exception as e:
         traceback.print_exc()
-        set_job(jid, stage="失败", error=str(e)[:200], done=True)
+        set_job(jid, stage="Failed", error=str(e)[:200], done=True)
 
 
 # ---------------- NHL 官方数据 ----------------
@@ -431,9 +431,9 @@ def run_nhl_sync(jid, season):
         cfg = config()
         pid = int(cfg.get("nhl_player_id") or 0)
         if not pid:
-            raise RuntimeError("config.json 里没有设置 nhl_player_id")
+            raise RuntimeError("nhl_player_id is not set in config.json")
         season = season or current_season()
-        set_job(jid, stage=f"读取 {season[:4]}-{season[6:]} 赛季逐场记录")
+        set_job(jid, stage=f"Reading the {season[:4]}-{season[6:]} season game log")
         games = []
         for gt in (2, 3):   # 常规赛、季后赛
             try:
@@ -443,7 +443,7 @@ def run_nhl_sync(jid, season):
         games = [g for g in games if (g.get("goals", 0) + g.get("assists", 0)) > 0 and not too_old(g.get("gameDate", ""))]
         events = []
         for i, g in enumerate(games, 1):
-            set_job(jid, stage=f"读取比赛明细 {i}/{len(games)}")
+            set_job(jid, stage=f"Reading game details {i}/{len(games)}")
             land = nhl_get(f"/gamecenter/{g['gameId']}/landing")
             for per in land.get("summary", {}).get("scoring", []):
                 for goal in per.get("goals", []):
@@ -476,10 +476,10 @@ def run_nhl_sync(jid, season):
             traceback.print_exc()
             ng = f"比赛明细读取失败: {str(e)[:60]}"
         assign_games_all()
-        set_job(jid, stage=f"完成：官方记录 {len(events)} 个进球/助攻，更新了 {ng} 场比赛", done=True)
+        set_job(jid, stage=f"Done: {len(events)} official goals/assists, {ng} games updated", done=True)
     except Exception as e:
         traceback.print_exc()
-        set_job(jid, stage="失败", error=str(e)[:200], done=True)
+        set_job(jid, stage="Failed", error=str(e)[:200], done=True)
 
 
 def write_atomic_text(path, text):
@@ -597,7 +597,7 @@ def ice_stats(gid, pid, ours, theirs, goalies, fwd, dfn):
 def sync_games(jid, season):
     team = config().get("nhl_team") or "PIT"
     pid = int(config().get("nhl_player_id") or 0)
-    set_job(jid, stage="读取赛程")
+    set_job(jid, stage="Reading schedule")
     sched = nhl_get(f"/club-schedule-season/{team}/{season}").get("games", [])
     today = datetime.datetime.now(datetime.timezone.utc).astimezone(__import__("zoneinfo").ZoneInfo("America/New_York")).date().isoformat()
     todo = [g for g in sched if g.get("gameState") in ("OFF", "FINAL") and not too_old(g["gameDate"]) and g["gameDate"] <= today]
@@ -612,7 +612,7 @@ def sync_games(jid, season):
         has_ice = bool(old_g) and "ice" in old_g
         if old_g and has_fo and has_ice and g["gameDate"] not in recent:     # 老比赛不重复读取; 最近几天、或还没有争球数据的重读一次
             continue
-        set_job(jid, stage=f"读取比赛明细 {i}/{len(todo)}")
+        set_job(jid, stage=f"Reading game details {i}/{len(todo)}")
         box = nhl_get(f"/gamecenter/{gid}/boxscore")
         rr = nhl_get(f"/gamecenter/{gid}/right-rail")
         land = nhl_get(f"/gamecenter/{gid}/landing")
@@ -741,14 +741,14 @@ def check_lines(gid, lines):
     """校验: 形状正确; 每个人必须是这场实际上场的、且在对应的组里; 一个人只能出现一次"""
     g = next((x for x in read_games_raw().get("games", []) if str(x["id"]) == str(gid)), None)
     if not g:
-        raise ValueError("找不到这场比赛(先同步官方数据)")
+        raise ValueError("Game not found (sync official data first)")
     L = g.get("lineup", {})
     ok = {"F": {r["id"] for r in L.get("forwards", [])}, "D": {r["id"] for r in L.get("defense", [])}, "G": {r["id"] for r in L.get("goalies", [])}}
     clean, seen = {}, set()
     for key in ("F", "D"):
         rows, (nr, nc) = lines.get(key) or [], SHAPE[key]
         if len(rows) > nr or any(len(r) != nc for r in rows):
-            raise ValueError("格式不对")
+            raise ValueError("Invalid format")
         clean[key] = []
         for r in rows + [[None] * nc] * (nr - len(rows)):
             out = []
@@ -757,23 +757,23 @@ def check_lines(gid, lines):
                     out.append(None); continue
                 pid = int(pid)
                 if pid not in ok[key]:
-                    raise ValueError("有球员不是这场上场的" + ("前锋" if key == "F" else "后卫"))
+                    raise ValueError("A player did not dress in this game (" + ("forward" if key == "F" else "defense") + ")")
                 if pid in seen:
-                    raise ValueError("同一个球员不能放在两个位置")
+                    raise ValueError("A player cannot be in two slots")
                 seen.add(pid); out.append(pid)
             clean[key].append(out)
     gk = lines.get("G") or []
     if len(gk) > 2:
-        raise ValueError("格式不对")
+        raise ValueError("Invalid format")
     clean["G"] = []
     for pid in list(gk) + [None] * (2 - len(gk)):
         if pid in (None, ""):
             clean["G"].append(None); continue
         pid = int(pid)
         if pid not in ok["G"]:
-            raise ValueError("有球员不是这场上场的门将")
+            raise ValueError("A goalie did not dress in this game")
         if pid in seen:
-            raise ValueError("同一个球员不能放在两个位置")
+            raise ValueError("A player cannot be in two slots")
         seen.add(pid); clean["G"].append(pid)
     return clean
 
@@ -826,7 +826,7 @@ def transcribe(video_path):
     """本地 whisper 转写英文逐字稿(不联网)"""
     exe, model = shutil.which("whisper-cli"), whisper_model()
     if not (exe and model):
-        raise RuntimeError("需要 whisper-cli 和 ggml 模型才能转写（见 README）")
+        raise RuntimeError("whisper-cli and a ggml model are required for transcription (see README)")
     tmp = tempfile.mkdtemp()
     try:
         wav = os.path.join(tmp, "a.wav")
@@ -870,7 +870,7 @@ def _post_json(url, headers, body, timeout=180):
             return json.loads(r.read().decode())
     except urllib.error.HTTPError as e:
         detail = e.read().decode("utf-8", "replace")[:200]
-        raise RuntimeError(f"云端接口返回 {e.code}：{detail}")
+        raise RuntimeError(f"Cloud API returned {e.code}: {detail}")
 
 
 def via_anthropic(prompt):
@@ -905,11 +905,11 @@ def providers():
 def summarize_text(text):
     ps = providers()
     if not ps:
-        raise RuntimeError("还没有配置云端接口：请按 README 在 secrets.env 里设置 ANTHROPIC_API_KEY（或 LLM_API_KEY），然后重启。")
+        raise RuntimeError("Cloud API not configured: set ANTHROPIC_API_KEY (or LLM_API_KEY) in secrets.env as described in the README, then restart.")
     out, model = ps[0](SUM_PROMPT.format(player=config().get("player", "该球员"), text=text[:12000]))
     out = re.sub(r"<think>.*?</think>", "", out or "", flags=re.S).strip()
     if "摘要" not in out or "要点" not in out:
-        raise RuntimeError("模型没有按格式输出，可以点“重新生成”再试一次")
+        raise RuntimeError("The model did not follow the output format; click “Regenerate” to try again")
     return out, model
 
 
@@ -918,23 +918,23 @@ def run_summarize(jid, cid):
         with LOCK:
             c = next((x for x in read_clips() if x["id"] == cid), None)
         if not c:
-            raise RuntimeError("找不到这个片段")
+            raise RuntimeError("Clip not found")
         if not providers():     # 先查配置, 免得白白转写
-            raise RuntimeError("还没有配置云端接口：请按 README 在 secrets.env 里设置 ANTHROPIC_API_KEY（或 LLM_API_KEY），然后重启。")
+            raise RuntimeError("Cloud API not configured: set ANTHROPIC_API_KEY (or LLM_API_KEY) in secrets.env as described in the README, then restart.")
         video = os.path.join(ROOT, c["video"])
         tpath = os.path.splitext(video)[0] + ".en.txt"
-        set_job(jid, stage="排队中")
+        set_job(jid, stage="Queued")
         with AI_LOCK:
             if os.path.exists(tpath) and open(tpath, encoding="utf-8").read().strip():
                 text = open(tpath, encoding="utf-8").read().strip()
             else:
-                set_job(jid, stage="转写英文逐字稿（本机 whisper）")
+                set_job(jid, stage="Transcribing English transcript (local whisper)")
                 text = transcribe(video)
                 open(tpath, "w", encoding="utf-8").write(text + "\n")
             if len(text.split()) < 8:
                 summary, src = "（没有识别到足够的语音内容，无法总结）", "自动"
             else:
-                set_job(jid, stage="云端总结中")
+                set_job(jid, stage="Summarizing in the cloud")
                 summary, model = summarize_text(text)
                 src = f"AI·{model}"
         with LOCK:
@@ -944,16 +944,16 @@ def run_summarize(jid, cid):
                 c["summary"], c["summary_src"] = summary, src
                 c["transcript"] = os.path.relpath(tpath, ROOT)
                 write_clips(rows)
-        set_job(jid, stage="完成", done=True, clip=cid)
+        set_job(jid, stage="Done", done=True, clip=cid)
     except Exception as e:
         traceback.print_exc()
-        set_job(jid, stage="失败", error=str(e)[:240], done=True)
+        set_job(jid, stage="Failed", error=str(e)[:240], done=True)
 
 
 def start_summary(cid):
     jid = "s" + str(int(time.time() * 1000)) + str(len(JOBS))
     with JLOCK:
-        JOBS[jid] = {"id": jid, "url": "生成摘要 " + cid[:11], "stage": "开始", "done": False}
+        JOBS[jid] = {"id": jid, "url": "Summarize " + cid[:11], "stage": "Started", "done": False}
     threading.Thread(target=run_summarize, args=(jid, cid), daemon=True).start()
 
 
@@ -1027,13 +1027,13 @@ def mention_hint(text, keywords):
 def run_photos(jid, tw, url):
     try:
         tid = tw["id_str"]
-        set_job(jid, stage="下载照片")
+        set_job(jid, stage="Downloading photos")
         photos = [m for m in tw.get("mediaDetails", []) if m.get("type") == "photo"]
         kws = config().get("photo_keywords") or [(config().get("player", "").split() or [""])[-1]]
         kws = [k for k in kws if k]
         date = et_date(tw["created_at"])
         if too_old(date):
-            set_job(jid, stage=f"已跳过：这条帖子发布于 {date}，早于起始日期 {cutoff()}", done=True, photos=0)
+            set_job(jid, stage=f"Skipped: this post is from {date}, before the start date {cutoff()}", done=True, photos=0)
             return
         text = (tw.get("text") or "").strip()
         author = (tw.get("user") or {}).get("screen_name", "")
@@ -1051,7 +1051,7 @@ def run_photos(jid, tw, url):
                 with urllib.request.urlopen(req, timeout=60) as r:
                     data, ctype = r.read(), r.headers.get("Content-Type", "")
                 if not ctype.startswith("image/") or len(data) < 1000:
-                    raise RuntimeError("下载到的不是图片")
+                    raise RuntimeError("The downloaded file is not an image")
                 alt = (m.get("ext_alt_text") or "").strip()
                 hint = "图片说明里提到了他" if mention_hint(alt, kws) else ("帖子文字里提到了他" if mention_hint(text, kws) else "")
                 p = {"id": pid, "tweet_id": tid, "idx": i, "count": len(photos), "date": date, "status": "待确认", "author": author,
@@ -1064,10 +1064,10 @@ def run_photos(jid, tw, url):
                 rows.append(p)
                 added += 1
             write_photos(rows)
-        set_job(jid, stage=f"完成：{added} 张新照片，在“照片”页里筛选" if added else "这条帖子的照片已经都在存档里了", done=True, photos=added)
+        set_job(jid, stage=f"Done: {added} new photos; review them on the Photos tab" if added else "All photos from this post are already in the archive", done=True, photos=added)
     except Exception as e:
         traceback.print_exc()
-        set_job(jid, stage="失败", error=str(e)[:200], done=True)
+        set_job(jid, stage="Failed", error=str(e)[:200], done=True)
 
 
 # ---------------- HTTP ----------------
@@ -1122,7 +1122,7 @@ class H(RangeMixin, SimpleHTTPRequestHandler):
                 c = next((x for x in read_clips() if x["id"] == cid), None)
             f = os.path.join(ROOT, c["video"]) if c and c.get("video") else ""
             if not (f and os.path.exists(f)):
-                return self._json({"error": "找不到视频文件"}, 404)
+                return self._json({"error": "Video file not found"}, 404)
             try:
                 j = json.loads(subprocess.run(["ffprobe", "-v", "error", "-show_entries",
                                                "stream=codec_type,codec_name,width,height,avg_frame_rate,bit_rate:format=duration,size",
@@ -1136,7 +1136,7 @@ class H(RangeMixin, SimpleHTTPRequestHandler):
                 return self._json({"width": v["width"], "height": v["height"], "fps": round(n / d, 2) if d else 0, "vbr": vbr, "abr": abr,
                                    "vcodec": v["codec_name"], "acodec": a.get("codec_name", ""), "size": size, "duration": dur})
             except Exception as e:
-                return self._json({"error": "读取失败: " + str(e)[:80]}, 500)
+                return self._json({"error": "Failed to read: " + str(e)[:80]}, 500)
         if u.path == "/api/lines":
             with LLOCK:
                 return self._json(read_lines())
@@ -1162,44 +1162,44 @@ class H(RangeMixin, SimpleHTTPRequestHandler):
             n = int(self.headers.get("Content-Length") or 0)
             body = json.loads(self.rfile.read(n) or b"{}")
         except ValueError:
-            return self._json({"error": "请求格式不对"}, 400)
+            return self._json({"error": "Invalid request"}, 400)
         try:
             if self.path == "/api/add":
                 tasks, errs = parse_tasks(body.get("urls", ""))
                 st, en = str(body.get("start", "")).strip(), str(body.get("end", "")).strip()
                 if (st or en):
                     if len(tasks) != 1 or tasks[0]["start"] is not None:
-                        return self._json({"error": "表单里的起点/终点只能用于单个链接；多个链接请直接写在链接后面，如 https://... 12:30-13:05"}, 400)
+                        return self._json({"error": "The Start/End fields work with a single link only; for several links, write the times after each link, e.g. https://... 12:30-13:05"}, 400)
                     a, b = parse_time(st or "0"), parse_time(en)
                     if a is None or b is None:
-                        return self._json({"error": "起点/终点格式不对，应如 1:23 或 01:23:45"}, 400)
+                        return self._json({"error": "Invalid start/end format; use something like 1:23 or 01:23:45"}, 400)
                     if b <= a:
-                        return self._json({"error": "终点要大于起点"}, 400)
+                        return self._json({"error": "End must be after start"}, 400)
                     tasks[0]["start"], tasks[0]["end"] = a, b
                 if errs and not tasks:
                     return self._json({"error": "；".join(errs)}, 400)
                 if not tasks:
-                    return self._json({"error": "没有找到有效的链接"}, 400)
+                    return self._json({"error": "No valid link found"}, 400)
                 base = {"type": body.get("type", ""), "date": body.get("date", ""), "opponent": body.get("opponent", ""),
                         "title": body.get("title", "").strip() if len(tasks) == 1 else ""}
                 if base["date"] and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", base["date"]):
-                    return self._json({"error": "日期格式应为 2026-10-08"}, 400)
+                    return self._json({"error": "Date format should be 2026-10-08"}, 400)
                 if too_old(base["date"]):
-                    return self._json({"error": f"比赛日期早于起始日期 {cutoff()}，不收录。要改起始日期，请编辑 config.json 里的 archive_start。"}, 400)
+                    return self._json({"error": f"The game date is before the start date {cutoff()} and is not archived. To change the start date, edit archive_start in config.json."}, 400)
                 for t in tasks:
                     jid = "j" + str(int(time.time() * 1000)) + str(len(JOBS))
                     label = t["url"] + (f"  {fmt_time(t['start'])}–{fmt_time(t['end'])}" if t["start"] is not None else "")
                     with JLOCK:
-                        JOBS[jid] = {"id": jid, "url": label, "stage": "开始", "done": False}
+                        JOBS[jid] = {"id": jid, "url": label, "stage": "Started", "done": False}
                     threading.Thread(target=run_add, args=(jid, t["url"], {**base, "start": t["start"], "end": t["end"]}), daemon=True).start()
-                return self._json({"ok": True, "n": len(tasks), "warn": "；".join(errs)})
+                return self._json({"ok": True, "n": len(tasks), "warn": "; ".join(errs)})
             if self.path == "/api/nhl/sync":
                 season = str(body.get("season") or "")
                 if season and not re.fullmatch(r"\d{8}", season):
-                    return self._json({"error": "赛季格式应为 20262027"}, 400)
+                    return self._json({"error": "Season format should be 20262027"}, 400)
                 jid = "n" + str(int(time.time() * 1000))
                 with JLOCK:
-                    JOBS[jid] = {"id": jid, "url": "同步 NHL 官方数据", "stage": "开始", "done": False}
+                    JOBS[jid] = {"id": jid, "url": "Sync NHL official data", "stage": "Started", "done": False}
                 threading.Thread(target=run_nhl_sync, args=(jid, season), daemon=True).start()
                 return self._json({"ok": True})
             if self.path == "/api/nhl/fetch":
@@ -1211,13 +1211,13 @@ class H(RangeMixin, SimpleHTTPRequestHandler):
                     jid = "j" + str(int(time.time() * 1000)) + str(len(JOBS))
                     t = event_task(e, player)
                     with JLOCK:
-                        JOBS[jid] = {"id": jid, "url": f"{e['date']} {e['type']} {e['moment']} vs {e['opp']}", "stage": "开始", "done": False}
+                        JOBS[jid] = {"id": jid, "url": f"{e['date']} {e['type']} {e['moment']} vs {e['opp']}", "stage": "Started", "done": False}
                     threading.Thread(target=run_add, args=(jid, BC + str(e["clip"]), t), daemon=True).start()
                 return self._json({"ok": True, "n": len(todo)})
             if self.path == "/api/photo/mark":
                 st = body.get("status")
                 if st not in PSTATUS:
-                    return self._json({"error": "状态不对"}, 400)
+                    return self._json({"error": "Invalid status"}, 400)
                 ids = set(body.get("ids") or [])
                 with PLOCK:
                     rows = read_photos()
@@ -1232,11 +1232,11 @@ class H(RangeMixin, SimpleHTTPRequestHandler):
                     rows = read_photos()
                     p = next((x for x in rows if x["id"] == body.get("id")), None)
                     if not p:
-                        return self._json({"error": "找不到这张照片"}, 404)
+                        return self._json({"error": "Photo not found"}, 404)
                     for k, v in (body.get("fields") or {}).items():
                         if k == "date":
                             if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(v)):
-                                return self._json({"error": "日期格式应为 2026-10-08"}, 400)
+                                return self._json({"error": "Date format should be 2026-10-08"}, 400)
                             p["date"] = v
                         elif k == "note":
                             p["note"] = str(v)
@@ -1244,7 +1244,7 @@ class H(RangeMixin, SimpleHTTPRequestHandler):
                             p["game_id"] = str(v)
                         elif k == "kind":
                             if v not in ("阵容", "数据表", "其他"):
-                                return self._json({"error": "照片类型不对"}, 400)
+                                return self._json({"error": "Invalid photo type"}, 400)
                             p["kind"] = v
                     move_photo(p)
                     write_photos(rows)
@@ -1276,7 +1276,7 @@ class H(RangeMixin, SimpleHTTPRequestHandler):
                 return self._json({"ok": True})
             if self.path == "/api/summarize":
                 if not any(x["id"] == body.get("id") for x in read_clips()):
-                    return self._json({"error": "找不到这个片段"}, 404)
+                    return self._json({"error": "Clip not found"}, 404)
                 start_summary(body["id"])
                 return self._json({"ok": True})
             if self.path == "/api/update":
@@ -1284,23 +1284,23 @@ class H(RangeMixin, SimpleHTTPRequestHandler):
                     rows = read_clips()
                     c = next((x for x in rows if x["id"] == body["id"]), None)
                     if not c:
-                        return self._json({"error": "找不到这个片段"}, 404)
+                        return self._json({"error": "Clip not found"}, 404)
                     for k, v in body.get("fields", {}).items():
                         if k not in EDITABLE:
                             continue
                         if k in ("goals", "assists"):
                             v = max(0, int(v))
                         if k == "game_date" and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(v)):
-                            return self._json({"error": "日期格式应为 2026-10-08"}, 400)
+                            return self._json({"error": "Date format should be 2026-10-08"}, 400)
                         if k == "type" and v not in TYPES:
-                            return self._json({"error": "类型不对"}, 400)
+                            return self._json({"error": "Invalid type"}, 400)
                         if k == "phase" and v not in ("", "赛前", "赛后"):
-                            return self._json({"error": "赛前/赛后 取值不对"}, 400)
+                            return self._json({"error": "Invalid pre/post-game value"}, 400)
                         if k == "summary" and v != c.get("summary"):
                             c["summary_src"] = "手写"
                         c[k] = v
                     if not c["title"].strip():
-                        return self._json({"error": "标题不能为空"}, 400)
+                        return self._json({"error": "Title cannot be empty"}, 400)
                     relocate(c)
                     write_clips(rows)
                     return self._json(c)
@@ -1331,7 +1331,7 @@ if __name__ == "__main__":
     threading.Thread(target=lambda: (repair_all(), backfill_official_summaries(), assign_games_all()), daemon=True).start()
     srv = ThreadingHTTPServer(("127.0.0.1", PORT), H)
     url = f"http://localhost:{PORT}/"
-    print(f"{config()['title']}已启动:", url, "(关闭这个窗口即停止)")
+    print(f"{config()['title']} started:", url, "(close this window to stop)")
     if "--no-open" not in sys.argv:
         subprocess.Popen(["open", url])
     try:
