@@ -565,31 +565,52 @@ def ice_stats(gid, pid, ours, theirs, goalies, fwd, dfn):
             continue
         for t in range(sec(r["startTime"], r["period"]), sec(r["endTime"], r["period"])):
             on.setdefault(t, set()).add(i)
+    MIN_RUN = 5      # 换人时新旧球员会重叠几秒: 冰上任一方超过 5 名滑冰球员的那几秒不算, 和他同时在冰上不足 5 秒的短段也不算
     total, sit = 0, {"5v5": 0, "pp": 0, "pk": 0, "other": 0}
     cnt = {g: {c: {} for c in ("all", "5v5", "pp", "pk")} for g in ("d", "f")}
     trio = {}
-    for t, s_ in on.items():
+    secs = []        # (秒, 情形, 同时在冰上的队友)
+    for t in sorted(on):
+        s_ = on[t]
         if pid not in s_:
             continue
         a, b = len(s_ & ours), len(s_ & theirs)
+        if a > 5 or b > 5:      # 正在换人, 重叠
+            continue
         cat = "5v5" if a == b == 5 else "pp" if a > b else "pk" if a < b else "other"
-        total += 1
+        secs.append((t, cat, frozenset(s_ & ours)))
+    total = len(secs)
+    for _, cat, _s in secs:
         sit[cat] += 1
-        for i in s_ & ours:
-            if i == pid:
+
+    def runs(keyfn):
+        """把 secs 按 keyfn(秒记录) 是否成立分成连续的段, 只保留不短于 MIN_RUN 的"""
+        out, cur = [], []
+        for rec in secs:
+            if keyfn(rec) and (not cur or rec[0] == cur[-1][0] + 1):
+                cur.append(rec)
                 continue
-            g_ = "d" if i in dfn else "f" if i in fwd else None
-            if not g_:
-                continue
-            for c in ("all", cat):
-                if c in cnt[g_]:
-                    cnt[g_][c][i] = cnt[g_][c].get(i, 0) + 1
-        if cat == "5v5":
-            fs = tuple(sorted(i for i in s_ & ours if i in fwd))
-            if len(fs) == 3:
-                trio[fs] = trio.get(fs, 0) + 1
+            if len(cur) >= MIN_RUN:
+                out.append(cur)
+            cur = [rec] if keyfn(rec) else []
+        if len(cur) >= MIN_RUN:
+            out.append(cur)
+        return out
+    for i in {i for _, _, m in secs for i in m if i != pid}:
+        g_ = "d" if i in dfn else "f" if i in fwd else None
+        if not g_:
+            continue
+        for run in runs(lambda rec, i=i: i in rec[2]):
+            for _, cat, _s in run:
+                for c in ("all", cat):
+                    if c in cnt[g_]:
+                        cnt[g_][c][i] = cnt[g_][c].get(i, 0) + 1
+    trio_of = lambda rec: tuple(sorted(i for i in rec[2] if i in fwd)) if rec[1] == "5v5" else None
+    for fs in {trio_of(rec) for rec in secs if trio_of(rec) and len(trio_of(rec)) == 3}:
+        for run in runs(lambda rec, fs=fs: trio_of(rec) == fs):
+            trio[fs] = trio.get(fs, 0) + len(run)
     pack = lambda d_: sorted(([i, n] for i, n in d_.items() if n >= 10), key=lambda x: -x[1])
-    return {"pid": pid, "total": total, "sit": sit,
+    return {"v": 2, "pid": pid, "total": total, "sit": sit,
             "d": {c: pack(v) for c, v in cnt["d"].items()}, "f": {c: pack(v) for c, v in cnt["f"].items()},
             "trios": sorted(([list(k), n] for k, n in trio.items() if n >= 15), key=lambda x: -x[1])[:5]}
 
@@ -609,7 +630,7 @@ def sync_games(jid, season):
         gid = g["id"]
         old_g = have.get(str(gid))
         has_fo = bool(old_g) and all("fo" in r for r in (old_g.get("lineup", {}).get("forwards", []) + old_g.get("lineup", {}).get("defense", [])))
-        has_ice = bool(old_g) and "ice" in old_g
+        has_ice = bool(old_g) and "ice" in old_g and (old_g["ice"] is None or (isinstance(old_g["ice"], dict) and old_g["ice"].get("v") == 2))
         if old_g and has_fo and has_ice and g["gameDate"] not in recent:     # 老比赛不重复读取; 最近几天、或还没有争球数据的重读一次
             continue
         set_job(jid, stage=f"Reading game details {i}/{len(todo)}")

@@ -352,7 +352,7 @@ function iceHTML(g){
     <div class="hint" style="margin-top:10px">Most common forward trios on ice with him at 5v5</div>
     <table class="gt l"><tr><th>Time</th><th>Forward trio (most faceoffs marked “C”)</th></tr>${(ice.trios || []).slice(0, 4).map(([ids, s]) => { const c = centerOf(ids);
       return `<tr><td>${mmss(s)}</td><td>${ids.map(i => esc((dressedMap(g).get(i) || {}).name || i) + (i === c ? `<span class="tag2 me">C</span>` : "")).join(", ")}</td></tr>`; }).join("") || `<tr><td colspan="2" class="hint">No data</td></tr>`}</table>
-    <div class="hint" style="margin-top:8px">Counted second by second from the official shift records: who was on the ice with him (goalies excluded). 5v5, PP and SH are decided by the number of skaters on each side, which can be off when a goalie is pulled. Time when he is off the ice is not counted; the sample is this one game, so pairings change from game to game.</div></div>`;
+    <div class="hint" style="margin-top:8px">Counted second by second from the official shift records: who was on the ice with him (goalies excluded). 5v5, PP and SH are decided by the number of skaters on each side, which can be off when a goalie is pulled. Line-change overlaps (seconds with more than 5 skaters on one side) are removed, and stretches under 5 seconds together are ignored. Time when he is off the ice is not counted; the sample is this one game, so pairings change from game to game.</div></div>`;
 }
 
 // ---------- 阵容分组(手动填写) ----------
